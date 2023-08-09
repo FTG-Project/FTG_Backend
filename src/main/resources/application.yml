@@ -22,7 +22,6 @@ spring:
             redirect-url: http://localhost:8080/login/oauth2/code/google
             scope: email
 
-
 jwt:
   secretKey: 'qwjedi19hrb18odxkcnwgkjkladhnw9182nmsd0s89y12mne123mksnsaujfdhowkrn3k45786zxnmcvwjehrkeljhfjwh1'
 
