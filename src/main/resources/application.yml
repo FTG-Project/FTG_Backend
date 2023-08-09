@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url:  jdbc:mysql://localhost:3306/trip
+    username: root
+    password: ans8688?
+  jpa:
+    properties:
+      hibernate:
+        format_sql: 'true'
+    show-sql: 'true'
+    hibernate:
+      ddl-auto: update
+      default_batch_fetch_size: 100
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 969542110950-o4f05po4gpihkrrjf6vpofnoi7log0og.apps.googleusercontent.com
+            client-secret: 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
+            redirect-url: http://localhost:8080/login/oauth2/code/google
+            scope: email
+
+
+jwt:
+  secretKey: 'qwjedi19hrb18odxkcnwgkjkladhnw9182nmsd0s89y12mne123mksnsaujfdhowkrn3k45786zxnmcvwjehrkeljhfjwh1'
+
+  access:
+    expiration: 300000
+    header: Authorization
+
+  refresh:
+    expiration: 1200000
+    header: Authorization-refresh
