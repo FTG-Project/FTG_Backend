@@ -43,12 +43,12 @@ public class SecurityConfig {
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
 
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(
-                                /* "/o/**", "/login/**", */ "localhost:8080/**"
-                                ).permitAll()
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests()
+                .requestMatchers(
+                        "**/**", "/", "/**",
+                        "**/auth/**"
+                ).permitAll()
+                .and()
 
                 // 소셜 로그인 핸들러 등록
 

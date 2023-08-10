@@ -36,17 +36,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
                 response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
 
-                //response.sendRedirect("tempUrl"); 우리 서비스 국적 선택, 닉네임 선택 창으로 이동
+                response.sendRedirect("trip/sign-up"); //우리 서비스 국적 선택, 닉네임 선택 창으로 이동
 
                 jwtService.sendAccessAndRefreshToken(response, accessToken, null);
-
-                //TODO : GUEST -> USER, 회원 가입 추가 폼 입력 시 업데이트 되도록 구현하기
-                //response.sendRedirect("/sign-in-form"); - >추가 정보 입력으로 redirect, url 아직 안정해져서 나둠.
 
             } else {
                 log.info("ROLE : USER");
                 loginSuccess(response, oAuth2User);
-                response.sendRedirect("/");
             }
         }catch (Exception e) {
             log.error("occur error in process");
