@@ -1,8 +1,6 @@
 package com.trip.triptogether.security.oauth2.handler;
 
 import com.trip.triptogether.constant.Role;
-import com.trip.triptogether.domain.User;
-import com.trip.triptogether.repository.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.oauth2.CustomOAuth2User;
 import jakarta.servlet.ServletException;
@@ -22,7 +20,6 @@ import java.io.IOException;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-    private final UserRepository userRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -36,8 +33,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
                 response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
 
-                response.sendRedirect("trip/sign-up"); //우리 서비스 국적 선택, 닉네임 선택 창으로 이동
-
                 jwtService.sendAccessAndRefreshToken(response, accessToken, null);
 
             } else {
@@ -50,7 +45,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
     }
 
-    //TODO : Refresh Token (존재 여부, 만기 여부) -> 발급 여부 결정해야 함.
+    //login 시점에는 Access, Refresh 토큰 안보내도 OK
     private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
         String refreshToken = jwtService.createRefreshToken();

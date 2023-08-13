@@ -36,5 +36,13 @@ public class User {
     public void updateRefreshToken(String updateRefreshToken) {
         this.refreshToken = updateRefreshToken;
     }
+
+    //Sign up
+    public void signUp(String nickname, String language) {
+        this.nickname = nickname;
+        this.language = language;
+        this.role = Role.USER;
+    }
+
 }
 

@@ -1,7 +1,7 @@
 package com.trip.triptogether.security.jwt.filter;
 
 import com.trip.triptogether.domain.User;
-import com.trip.triptogether.repository.UserRepository;
+import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.jwt.util.PasswordUtil;
 import jakarta.servlet.FilterChain;
@@ -24,8 +24,6 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
-    private static final String NO_CHECK_URL = "/login";
-
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
@@ -33,11 +31,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().equals(NO_CHECK_URL)) { // "/login" 요청 pass
-            log.info("RequestURI() == {}", request.getRequestURI());
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         //request 로 refreshToken 이 오는 경우는 AccessToken 만료인 경우가 유일, 나머지 null
         String refreshToken = jwtService.extractRefreshToken(request)
@@ -94,6 +87,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .password(password)
                 .roles(myUser.getRole().name())
                 .build();
+
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                 authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));

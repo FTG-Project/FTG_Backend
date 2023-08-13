@@ -1,4 +1,4 @@
-package com.trip.triptogether.repository;
+package com.trip.triptogether.repository.user;
 
 import com.trip.triptogether.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;

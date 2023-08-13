@@ -1,6 +1,6 @@
 package com.trip.triptogether.security.config;
 
-import com.trip.triptogether.repository.UserRepository;
+import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.filter.JwtAuthenticationProcessingFilter;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.oauth2.handler.OAuth2LoginFailureHandler;

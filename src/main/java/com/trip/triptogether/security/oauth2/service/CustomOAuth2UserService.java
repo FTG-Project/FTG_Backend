@@ -1,7 +1,7 @@
 package com.trip.triptogether.security.oauth2.service;
 
 import com.trip.triptogether.domain.User;
-import com.trip.triptogether.repository.UserRepository;
+import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.oauth2.CustomOAuth2User;
 import com.trip.triptogether.security.oauth2.OAuthAttributes;
 import lombok.RequiredArgsConstructor;
