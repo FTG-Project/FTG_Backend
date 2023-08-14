@@ -44,5 +44,8 @@ public class User {
         this.role = Role.USER;
     }
 
+    public void logout() {
+        this.refreshToken = null;
+    }
 }
 

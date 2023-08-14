@@ -11,15 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@RequestMapping("/users")
 public class UserController {
+
+    //url 은 api 명세서 작성하고 변경
 
     private final UserService userService;
 
@@ -35,5 +35,10 @@ public class UserController {
         }
 
         return ResponseEntity.ok(userService.signUp(user.getUsername(), userSaveDto));
+    }
+
+    @PostMapping("/logout")
+    public void logout(@AuthenticationPrincipal UserDetails user) {
+        userService.logout(user.getUsername());
     }
 }

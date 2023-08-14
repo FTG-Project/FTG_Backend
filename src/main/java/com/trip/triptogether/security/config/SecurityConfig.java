@@ -32,6 +32,8 @@ public class SecurityConfig {
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
 
+    private static final String[] PERMIT_URL = {"/users/**, /oauth2/**", "/login/**", "/**"};
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -42,22 +44,19 @@ public class SecurityConfig {
                 .and()
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-
-                .authorizeHttpRequests()
-                .requestMatchers(
-                        "**/**", "/", "/**",
-                        "**/auth/**"
-                ).permitAll()
+                .authorizeHttpRequests(
+                        authorize -> authorize
+                                .requestMatchers(PERMIT_URL).permitAll()
+                                .anyRequest().authenticated()
                 .and()
 
+                                .addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class))
                 // 소셜 로그인 핸들러 등록
-
                 .oauth2Login()
                 .successHandler(oAuth2LoginSuccessHandler)
                 .failureHandler(oAuth2LoginFailureHandler)
                 .userInfoEndpoint().userService(customOAuth2UserService);
 
-        http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
 
         return http.build();
     }
