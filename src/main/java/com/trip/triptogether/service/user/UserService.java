@@ -6,6 +6,7 @@ import com.trip.triptogether.dto.response.user.UserSaveResponse;
 import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.util.RedisUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,16 +24,19 @@ public class UserService {
     private final RedisUtil redisUtil;
 
     @Transactional
-    public UserSaveResponse signUp(String userEmail, UserSaveRequest userSaveDto) {
+    public UserSaveResponse signUp(String userEmail, UserSaveRequest userSaveDto, HttpServletResponse response) {
         User user = userRepository.findByEmail(userEmail).orElseThrow(
                 () -> new NoSuchElementException("user not found"));
 
-        //signup success -> refreshToken 저장
+        //setting refreshToken
         String refreshToken = jwtService.createRefreshToken();
+        jwtService.setRefreshTokenHeader(response, refreshToken);
 
         //TODO : S3 연결하면 defaultImageUrl 넣기
 
         user.signUp(userSaveDto.getNickname(), userSaveDto.getLanguage());
+
+        //signup success -> refreshToken 저장
         user.updateRefreshToken(refreshToken);
 
         return UserSaveResponse.builder().userId(user.getId()).build();

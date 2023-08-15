@@ -34,7 +34,7 @@ public class JwtService {
     @Value("${jwt.access.header}")
     private String accessHeader;
 
-    @Value("{jwt.refresh.header}")
+    @Value("${jwt.refresh.header}")
     private String refreshHeader;
 
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";

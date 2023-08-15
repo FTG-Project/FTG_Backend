@@ -6,6 +6,7 @@ import com.trip.triptogether.dto.response.user.UserSaveResponse;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,8 @@ public class UserController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<UserSaveResponse> signUp(@AuthenticationPrincipal UserDetails user,
-                                                   @Valid @RequestBody UserSaveRequest userSaveDto) {
+                                                   @Valid @RequestBody UserSaveRequest userSaveDto,
+                                                   HttpServletResponse response) {
         if (user == null) {
             throw new IllegalStateException("user is not exist at db");
         }
@@ -39,14 +41,14 @@ public class UserController {
             throw new IllegalArgumentException("already registered user");
         }
 
-        return ResponseEntity.ok(userService.signUp(user.getUsername(), userSaveDto));
+        return ResponseEntity.ok(userService.signUp(user.getUsername(), userSaveDto, response));
     }
 
     @PostMapping("/logout")
     public void logout(@AuthenticationPrincipal UserDetails user, HttpServletRequest request) {
+
         String accessToken = jwtService.extractAccessToken(request).orElseThrow(
                 () -> new NoSuchElementException("access Token is not exist"));
-
         userService.logout(user.getUsername(), accessToken);
     }
 }
