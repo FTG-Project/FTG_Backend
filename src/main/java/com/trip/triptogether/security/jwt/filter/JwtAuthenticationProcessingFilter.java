@@ -4,6 +4,7 @@ import com.trip.triptogether.domain.User;
 import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.jwt.util.PasswordUtil;
+import com.trip.triptogether.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +28,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final RedisUtil redisUtil;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
@@ -88,6 +90,11 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
         String accessToken = jwtService.extractAccessToken(request).orElseThrow(
                 () -> new NoSuchElementException("Access Token is not exist"));
+
+        if (redisUtil.hasKeyBlackList(accessToken)) {
+            throw new RuntimeException("로그아웃 상태의 user인데 access Token으로 접근한 case");
+        }
+
         if (jwtService.isTokenValid(accessToken)) {
             String extractEmail = jwtService.extractEmail(accessToken).orElseThrow(
                     () -> new NoSuchElementException("email is not exist"));

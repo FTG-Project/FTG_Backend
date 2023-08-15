@@ -134,4 +134,10 @@ public class JwtService {
             return false;
         }
     }
+
+    public Long getExpiration(String accessToken) {
+        Long expiresAt = JWT.decode(accessToken).getExpiresAt().getTime();
+        Long now = new Date().getTime();
+        return (expiresAt - now);
+    }
 }

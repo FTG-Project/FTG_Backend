@@ -6,6 +6,7 @@ import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.oauth2.handler.OAuth2LoginFailureHandler;
 import com.trip.triptogether.security.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.trip.triptogether.security.oauth2.service.CustomOAuth2UserService;
+import com.trip.triptogether.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,7 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final RedisUtil redisUtil;
 
     private static final String[] PERMIT_URL = {"/users/**, /oauth2/**", "/login/**", "/**"};
 
@@ -63,7 +65,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
-        JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter = new JwtAuthenticationProcessingFilter(jwtService, userRepository);
+        JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter = new JwtAuthenticationProcessingFilter(jwtService, userRepository, redisUtil);
         return jwtAuthenticationProcessingFilter;
     }
 
