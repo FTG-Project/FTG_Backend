@@ -13,13 +13,32 @@ public class Recommend {
 
     private String subhead;
 
-    @Enumerated(EnumType.STRING)
-    private Category category;
+    @Embedded
+    private Address address;
+
+    private String image;
+
+    private String thumbnail;
 
     @Lob
     private String content;
 
+    private String detailedAddress;
+
+    private String menu;
+
+    private String time;
+
+    private String phoneNumber;
+
+    private String url;
+
     @Embedded
     private Location location;
 
+    @Enumerated(EnumType.STRING)
+    private Category category;
+
+    @Enumerated(EnumType.STRING)
+    private Area area;
 }

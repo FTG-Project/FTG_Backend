@@ -1,5 +1,5 @@
 package com.trip.triptogether.domain;
 
 public enum Category {
-    RESTAURANT, ATTRACTION
+    RESTAURANT, ATTRACTION, SHOW, MEDICAL_FACILITY
 }
