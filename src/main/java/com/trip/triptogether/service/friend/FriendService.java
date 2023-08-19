@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -33,9 +34,10 @@ public class FriendService {
                 () -> new NoSuchElementException("user not found"));
 
         //이미 친구관계이거나 친구 요청을 한 상태라면 exception
-        friendRepository.findByFromToUser(fromUser.getId(), toUser.getId()).ifPresent(m -> {
-                throw new IllegalStateException("this friendship already exist in db");
-        });
+        List<Friend> friends = friendRepository.findByFromToUser(fromUser.getId(), toUser.getId());
+        if (friends.size() != 0) {
+            throw new IllegalStateException("this friend request already exist");
+        }
 
         //forward record
         Friend forwardFriendship = Friend.builder()
@@ -69,19 +71,26 @@ public class FriendService {
                 .map(u -> new UserResponse(u.getId(), u.getNickname(), u.getProfileImage(), u.getEmail()));
     }
 
-    // 친구 요청 수락
-//    @Transactional
-//    public void acceptFriendship(Long id) {
-//        User user = securityUtil.getAuthUserOrThrow();
-//        User toUser = userRepository.findById(id).orElseThrow(
-//                () -> new NoSuchElementException("user not found"));
-//
-//        //a->b : true and b->a : false 인 친구를 찾아야 함.
-//        //결과값 : b->a friendship
-//        Friend findFriendship = friendRepository.findFriendNotYetAccept(user.getId(), toUser.getId()).orElseThrow(
-//                () -> new IllegalStateException("doesn't exist friendship request in db"));
-//
-//        //Request accept -> update (areWeFriend = True) at reverse record
-//        findFriendship.acceptFriendRequest();
-//    }
+     // 친추 수락
+    @Transactional
+    public void acceptFriend(Long id) {
+        User user = securityUtil.getAuthUserOrThrow();
+        User toUser = userRepository.findById(id).orElseThrow(
+                () -> new NoSuchElementException("user not found"));
+
+        //a->b : true and b->a : false 인 친구를 찾아야 함.
+        //결과값 : b->a friendship
+        Friend findFriend = friendRepository.findFriendNotYetAccept(user.getId(), toUser.getId()).orElseThrow(
+                () -> new IllegalStateException("doesn't exist friendship request in db"));
+
+        //Request accept -> update (areWeFriend = True) at reverse record
+        findFriend.acceptFriendRequest();
+    }
+
+    // 친구 모두 조회
+    public Page<UserResponse> findFriends(Pageable pageable) {
+        User user = securityUtil.getAuthUserOrThrow();
+        return userRepository.findFriends(user.getId(), pageable)
+                .map(u -> new UserResponse(u.getId(), u.getNickname(), u.getProfileImage(), u.getEmail()));
+    }
 }

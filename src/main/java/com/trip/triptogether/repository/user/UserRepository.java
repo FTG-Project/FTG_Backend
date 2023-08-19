@@ -17,12 +17,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByRefreshToken(String refreshToken);
     Optional<User> findBySocialId(String socialId);
 
-    //아직 친추 수락하지 않은 유저 조회
-    @Query("select u from Friend f join User u on f.fromUser.id = :fromUserId" +
-    " where f.areWeFriend = FALSE")
+    //TODO : countQuery 최적화, Repository 분리
+
+    //상대방이 아직 안받은 케이스
+    @Query("select u from Friend f join User u on f.fromUser.id = u.id" +
+        " where f in (select ff from Friend ff where ff.toUser.id = :fromUserId and ff.areWeFriend = FALSE)")
     Page<User> findUserToUserNotYetAccept(Long fromUserId, Pageable pageable);
 
-    @Query("select u from Friend f join User u on f.toUser.id = :toUserId" +
-    " where f.areWeFriend = FALSE")
-    Page<User> findUserFromUserNotYetAccept(Long toUserId, Pageable pageable);
+    //내가 아직 안받은 케이스
+    @Query("select f.toUser from Friend f join User u on f.fromUser.id = u.id" +
+        " where f.fromUser.id = :fromUserId and f.areWeFriend = FALSE")
+    Page<User> findUserFromUserNotYetAccept(Long fromUserId, Pageable pageable);
+
+    //친구 모두 조회
+    @Query("select f.toUser from Friend f join Friend ff on f.toUser.id = ff.fromUser.id" +
+            " where f.fromUser.id = :fromUserId and" +
+            " f.areWeFriend = TRUE and" +
+            " ff.areWeFriend = TRUE")
+    Page<User> findFriends(Long fromUserId, Pageable pageable);
 }
