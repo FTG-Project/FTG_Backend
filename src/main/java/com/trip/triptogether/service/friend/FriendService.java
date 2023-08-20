@@ -30,6 +30,11 @@ public class FriendService {
     @Transactional
     public void createFriendship(Long id) {
         User fromUser = securityUtil.getAuthUserOrThrow();
+
+        if (id == fromUser.getId()) {
+            throw new IllegalStateException("can't request to yourself");
+        }
+
         User toUser = userRepository.findById(id).orElseThrow(
                 () -> new NoSuchElementException("user not found"));
 
