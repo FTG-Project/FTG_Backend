@@ -15,8 +15,8 @@ import java.util.List;
 
 public class CommentResponse {
     private Long id;
-    private String content;
-    private String writer;
+    private String content; //내용
+    private String writer; //작성자
     private List<CommentResponse> children = new ArrayList<>();
 
     public CommentResponse(Long id, String content, String writer) {

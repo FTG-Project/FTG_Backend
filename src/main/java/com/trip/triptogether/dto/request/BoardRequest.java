@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonNaming(value = PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class BoardRequest {
-    private String title;
-    private String content;
-    private BoardType boardType;
+    private String title; //제목
+    private String content; //내용
+    private BoardType boardType; //카테고리 타입
 
 }

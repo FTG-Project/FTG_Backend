@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class Response {
+    //공통 Response
     @ApiModelProperty(value = "응답 성공여부 : true/false")
     private boolean success;
 

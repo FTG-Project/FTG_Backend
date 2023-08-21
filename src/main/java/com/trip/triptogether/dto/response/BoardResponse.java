@@ -21,7 +21,7 @@ public class BoardResponse {
     private List<CommentResponse> commentList; //댓글 리스트
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
-    private LocalDateTime createdDate;
+    private LocalDateTime createdDate; //패턴 추후 변경
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime updatedDate;
 

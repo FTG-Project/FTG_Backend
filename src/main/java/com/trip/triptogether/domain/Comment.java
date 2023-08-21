@@ -33,7 +33,7 @@ public class Comment extends BaseTime {
 
     @ColumnDefault("FALSE")
     @Column
-    private Boolean isPrivated; // 비밀여부
+    private Boolean isPrivated; // 비밀 여부
 
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,5 +1,6 @@
 package com.trip.triptogether.config;
 
+//S3 설정
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

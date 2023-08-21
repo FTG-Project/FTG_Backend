@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 public class Board extends BaseTime{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "board_id")
@@ -50,7 +51,7 @@ public class Board extends BaseTime{
 
     public void addPhoto(Photo photo){
         photoList.add(photo);
-        photo.addBoard(this); // myBoard.addPhoto(somePhoto)를 호출하면 myBoard ->this
+        photo.addBoard(this);
     }
 
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ResponseService {
+    //ResponseService
     public Response.GeneralResponse getGeneralResponse(int code, String msg) {
         return new Response.GeneralResponse(true, code, msg);
     }
