@@ -51,7 +51,6 @@ public class SecurityConfig {
                 )
 
                 // 소셜 로그인 핸들러 등록
-
                 .oauth2Login()
                 .successHandler(oAuth2LoginSuccessHandler)
                 .failureHandler(oAuth2LoginFailureHandler)
