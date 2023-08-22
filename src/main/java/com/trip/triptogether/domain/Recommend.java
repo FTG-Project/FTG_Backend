@@ -1,5 +1,7 @@
 package com.trip.triptogether.domain;
 
+import com.trip.triptogether.constant.Area;
+import com.trip.triptogether.constant.Category;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -41,4 +43,9 @@ public class Recommend {
 
     @Enumerated(EnumType.STRING)
     private Area area;
+
+    private Double likes;
+
+    private Double rating;
+
 }
