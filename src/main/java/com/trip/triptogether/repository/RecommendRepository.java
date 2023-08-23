@@ -39,4 +39,11 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
             "WHERE p.category = 'MEDICALFACILITY' AND p.area = :area " +
             "ORDER BY (p.likes * 0.5 + p.rating * 0.5) DESC")
     List<MedicalFacilityBelovedResponse> findTop5MedicalFacilityByCombinedScore(Area area);
+
+    List<Recommend> findTop10ByOrderByRatingDesc();
+
+    List<Recommend> findTop10ByOrderByRatingAsc();
+
+    @Query(value = "SELECT * FROM Recommend ORDER BY RAND() LIMIT 5", nativeQuery = true)
+    List<Recommend> findRandomRecommend();
 }

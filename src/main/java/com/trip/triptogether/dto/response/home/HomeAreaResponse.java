@@ -1,4 +1,4 @@
-package com.trip.triptogether.dto.response;
+package com.trip.triptogether.dto.response.home;
 
 import com.trip.triptogether.constant.Area;
 import com.trip.triptogether.dto.response.Recommend.AttractionBelovedResponse;
@@ -9,11 +9,9 @@ import lombok.*;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class HomeAreaResponse {
     private Area area;
     private List<AttractionBelovedResponse> attractionId;
