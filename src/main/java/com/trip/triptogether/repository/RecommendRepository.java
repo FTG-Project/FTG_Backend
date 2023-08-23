@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
+
 public interface RecommendRepository extends JpaRepository<Recommend, Long> {
     @Query("SELECT new " +
             "com.trip.triptogether.dto.response.Recommend.AttractionBelovedResponse(p.id, p.title, p.address.province, p.address.city, p.thumbnail, p.rating, p.likes) " +
