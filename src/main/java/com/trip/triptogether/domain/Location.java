@@ -1,9 +1,12 @@
 package com.trip.triptogether.domain;
 
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+
 
 @Embeddable
 public class Location {
-    Long longitude;
-    Long latitude;
+    Double longitude;
+    Double latitude;
+
 }
