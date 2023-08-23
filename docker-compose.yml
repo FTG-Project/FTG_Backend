@@ -1,0 +1,24 @@
+
+
+services:
+  db:
+    image: mysql:latest
+    container_name: tt-server
+    ports:
+      - 3306:3306
+    volumes:
+      - ./data/:/var/lib/mysql # Mount directory settings (-v option)
+    environment:
+      - MYSQL_ROOT_PASSWORD=tt
+      - MYSQL_DATABASE=tt-server
+      - MYSQL_USER=tt_admin_
+      - MYSQL_PASSWORD=ttPassword
+      - TZ=Asia/Seoul
+    command: # Command execution
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+  redis_container:
+    image: redis
+    container_name: redis-tt-server
+    ports:
+      - 6379:6379
