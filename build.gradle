@@ -26,7 +26,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	//add redis dependency
+	//$add redis dependency
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 	//add JWT dependency
