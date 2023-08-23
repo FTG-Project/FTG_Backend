@@ -44,6 +44,6 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
 
     List<Recommend> findTop10ByOrderByRatingAsc();
 
-    @Query(value = "SELECT * FROM Recommend ORDER BY RAND() LIMIT 5", nativeQuery = true)
+    @Query(value = "SELECT * FROM recommend ORDER BY RAND() LIMIT 5", nativeQuery = true)
     List<Recommend> findRandomRecommend();
 }
