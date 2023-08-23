@@ -2,7 +2,7 @@ package com.trip.triptogether.security.oauth2.handler;
 
 import com.trip.triptogether.constant.Role;
 import com.trip.triptogether.domain.User;
-import com.trip.triptogether.repository.UserRepository;
+import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.oauth2.CustomOAuth2User;
 import jakarta.servlet.ServletException;
@@ -13,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Component
@@ -25,6 +27,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         log.info("OAuth2 login success");
         try {
@@ -36,17 +39,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
                 response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
 
-                //response.sendRedirect("tempUrl"); 우리 서비스 국적 선택, 닉네임 선택 창으로 이동
+                log.info("Access Token : {}", accessToken);
 
                 jwtService.sendAccessAndRefreshToken(response, accessToken, null);
-
-                //TODO : GUEST -> USER, 회원 가입 추가 폼 입력 시 업데이트 되도록 구현하기
-                //response.sendRedirect("/sign-in-form"); - >추가 정보 입력으로 redirect, url 아직 안정해져서 나둠.
 
             } else {
                 log.info("ROLE : USER");
                 loginSuccess(response, oAuth2User);
-                response.sendRedirect("/");
             }
         }catch (Exception e) {
             log.error("occur error in process");
@@ -54,14 +53,20 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
     }
 
-    //TODO : Refresh Token (존재 여부, 만기 여부) -> 발급 여부 결정해야 함.
     private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
         String refreshToken = jwtService.createRefreshToken();
         response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
         response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
 
+        log.info("Access Token : {}", accessToken);
+
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
         jwtService.updateRefreshToken(oAuth2User.getEmail(), refreshToken);
+
+        //login -> setting refreshToken
+        User user = userRepository.findByEmail(oAuth2User.getEmail()).orElseThrow(
+                () -> new NoSuchElementException("user not found"));
+        user.updateRefreshToken(refreshToken);
     }
 }

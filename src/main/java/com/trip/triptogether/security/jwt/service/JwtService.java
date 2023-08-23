@@ -2,7 +2,7 @@ package com.trip.triptogether.security.jwt.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.trip.triptogether.repository.UserRepository;
+import com.trip.triptogether.repository.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -34,7 +34,7 @@ public class JwtService {
     @Value("${jwt.access.header}")
     private String accessHeader;
 
-    @Value("{jwt.refresh.header}")
+    @Value("${jwt.refresh.header}")
     private String refreshHeader;
 
     private static final String ACCESS_TOKEN_SUBJECT = "AccessToken";
@@ -133,5 +133,11 @@ public class JwtService {
             log.error("Token is not valid. {}", e.getMessage());
             return false;
         }
+    }
+
+    public Long getExpiration(String accessToken) {
+        Long expiresAt = JWT.decode(accessToken).getExpiresAt().getTime();
+        Long now = new Date().getTime();
+        return (expiresAt - now);
     }
 }

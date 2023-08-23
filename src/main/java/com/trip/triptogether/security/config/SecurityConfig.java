@@ -1,11 +1,12 @@
 package com.trip.triptogether.security.config;
 
-import com.trip.triptogether.repository.UserRepository;
+import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.filter.JwtAuthenticationProcessingFilter;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.oauth2.handler.OAuth2LoginFailureHandler;
 import com.trip.triptogether.security.oauth2.handler.OAuth2LoginSuccessHandler;
 import com.trip.triptogether.security.oauth2.service.CustomOAuth2UserService;
+import com.trip.triptogether.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,9 @@ public class SecurityConfig {
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final RedisUtil redisUtil;
+
+    private static final String[] PERMIT_URL = {"/users/**, /oauth2/**", "/login/**", "/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,28 +46,26 @@ public class SecurityConfig {
                 .and()
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
+                .authorizeHttpRequests(
+                        authorize -> authorize
+                                .requestMatchers(PERMIT_URL).permitAll()
+                                .anyRequest().authenticated()
+                .and()
 
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(
-                                /* "/o/**", "/login/**", */ "localhost:8080/**"
-                                ).permitAll()
-                        .anyRequest().authenticated()
-                )
-
+                                .addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class))
                 // 소셜 로그인 핸들러 등록
                 .oauth2Login()
                 .successHandler(oAuth2LoginSuccessHandler)
                 .failureHandler(oAuth2LoginFailureHandler)
                 .userInfoEndpoint().userService(customOAuth2UserService);
 
-        http.addFilterAfter(jwtAuthenticationProcessingFilter(), LogoutFilter.class);
 
         return http.build();
     }
 
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
-        JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter = new JwtAuthenticationProcessingFilter(jwtService, userRepository);
+        JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter = new JwtAuthenticationProcessingFilter(jwtService, userRepository, redisUtil);
         return jwtAuthenticationProcessingFilter;
     }
 

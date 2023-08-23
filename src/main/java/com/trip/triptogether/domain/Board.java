@@ -34,6 +34,9 @@ public class Board extends BaseTime{
     @Column
     private String writer; //작성자
 
+    @Enumerated(EnumType.STRING)
+    private BoardType boardType; // 여행 카테고리
+
     //user 다대일 관계 매핑
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -46,8 +49,7 @@ public class Board extends BaseTime{
     @OneToMany(mappedBy = "board")
     @Builder.Default
     private List<Comment> commentList=new ArrayList<>();
-    @Enumerated(EnumType.STRING)
-    private BoardType boardType; // 여행 카테고리
+
 
     public void addPhoto(Photo photo){
         photoList.add(photo);

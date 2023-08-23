@@ -10,17 +10,21 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-//Redis 설정
-@RequiredArgsConstructor
+
+
 @Configuration
+@RequiredArgsConstructor
 @EnableRedisRepositories
 public class RedisConfig {
+
     private final RedisProperties redisProperties;
 
     @Bean
-    public RedisConnectionFactory redisConnectionFactory(){
-        return new LettuceConnectionFactory(redisProperties.getHost(),redisProperties.getPort());
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
     }
+
+
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();

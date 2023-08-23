@@ -1,9 +1,10 @@
 package com.trip.triptogether.security.jwt.filter;
 
 import com.trip.triptogether.domain.User;
-import com.trip.triptogether.repository.UserRepository;
+import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.jwt.util.PasswordUtil;
+import com.trip.triptogether.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,22 +20,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
-    private static final String NO_CHECK_URL = "/login/**";
-
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final RedisUtil redisUtil;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().equals(NO_CHECK_URL)) { // "/login" 요청 pass
-            log.info("RequestURI() == {}", request.getRequestURI());
+        String requestURI = request.getRequestURI();
+        log.info("request URI : {}", requestURI);
+        if (requestURI.contains("login") || requestURI.contains("oauth2") || requestURI.contains("favicon")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -50,7 +52,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
             return;
         }
 
-        //refreshToken 이 없거나 유효하지 않은 경우
+        //refreshToken 이 없는 경우
         //AccessToken 검사 -> AccessToken 이 없거나 유효하지 않으면 403
         if (refreshToken == null) {
             log.info("refreshToken == null");
@@ -59,12 +61,20 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     }
 
     public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
-        userRepository.findByRefreshToken(refreshToken)
-                .ifPresent(user -> {
-                    String reIssuedRefreshToken = reIssueRefreshToken(user);
-                    jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
-                            reIssuedRefreshToken);
-                });
+
+        // refresh token 이 유효하면 재발급, 아니면 로그아웃
+        if (jwtService.isTokenValid(refreshToken)) {
+            User user = userRepository.findByRefreshToken(refreshToken).orElseThrow(
+                    () -> new NoSuchElementException("user not found"));
+            String reIssuedRefreshToken = reIssueRefreshToken(user);
+            jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
+                    reIssuedRefreshToken);
+        } else {
+            User user = userRepository.findByRefreshToken(refreshToken).orElseThrow(
+                    () -> new NoSuchElementException("user not found")); // invalid refresh Token
+
+            user.logout(); // refresh Token 기간 만료 -> 로그아웃
+        }
     }
 
     public String reIssueRefreshToken(User user) {
@@ -77,11 +87,23 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
         log.info("checkAccessTokenAndAuthentication");
-        jwtService.extractAccessToken(request)
-                .filter(jwtService::isTokenValid)
-                .ifPresent(accessToken -> jwtService.extractEmail(accessToken)
-                        .ifPresent(email -> userRepository.findByEmail(email)
-                                .ifPresent(this::saveAuthentication)));
+
+        String accessToken = jwtService.extractAccessToken(request).orElseThrow(
+                () -> new NoSuchElementException("Access Token is not exist"));
+
+        if (redisUtil.hasKeyBlackList(accessToken)) {
+            throw new RuntimeException("로그아웃 상태의 user인데 access Token으로 접근한 case");
+        }
+
+        if (jwtService.isTokenValid(accessToken)) {
+            String extractEmail = jwtService.extractEmail(accessToken).orElseThrow(
+                    () -> new NoSuchElementException("email is not exist"));
+            User user = userRepository.findByEmail(extractEmail).orElseThrow(
+                    () -> new NoSuchElementException("user is not exist"));
+            saveAuthentication(user);
+        } else {
+            throw new IllegalStateException("Access Token is not valid");
+        }
 
         filterChain.doFilter(request, response);
     }
@@ -94,6 +116,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
                 .password(password)
                 .roles(myUser.getRole().name())
                 .build();
+
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                 authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));

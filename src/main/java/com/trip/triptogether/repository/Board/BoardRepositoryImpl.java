@@ -26,25 +26,25 @@ public class BoardRepositoryImpl extends QuerydslRepositorySupport implements Bo
         this.queryFactory=jpaQueryFactory;
     }
 
-//    @Override
-//    public PageImpl<PageResponse> getBoardList(Pageable pageable) {
-//        List<Community> results = queryFactory
-//                .selectFrom(community)
-//                .orderBy(community.createdDate.desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .fetch();
-//
-//        long totalCount = queryFactory
-//                .selectFrom(community)
-//                .fetchCount();
-//
-//        List<PageResponse> dtoList = results.stream()
-//                .map(PageResponse::new)
-//                .collect(Collectors.toList());
-//
-//        return new PageImpl<>(dtoList, pageable, totalCount);
-//    }
+    @Override
+    public PageImpl<BoardResponse.PageResponse> getBoardList(Pageable pageable) {
+        List<Board> results = queryFactory
+                .selectFrom(board)
+                .orderBy(board.createdDate.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        long totalCount = queryFactory
+                .selectFrom(board)
+                .fetchCount();
+
+        List<BoardResponse.PageResponse> dtoList = results.stream()
+                .map(BoardResponse.PageResponse::new)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, pageable, totalCount);
+    }
     @Override
     public PageImpl<BoardResponse.PageResponse> getPageListWithSearch(BoardType boardType, SearchType searchCondition, Pageable pageable){
         JPQLQuery<Board> query = queryFactory.select(board).from(board);

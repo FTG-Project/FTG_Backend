@@ -7,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor
@@ -33,7 +36,25 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private List<Board> boardList=new ArrayList<>();
+
     public void updateRefreshToken(String updateRefreshToken) {
         this.refreshToken = updateRefreshToken;
     }
+
+
+    //Sign up
+    public void signUp(String nickname, String language) {
+        this.nickname = nickname;
+        this.language = language;
+        this.role = Role.USER;
+    }
+
+    public void logout() {
+        this.refreshToken = null;
+    }
 }
+
+
