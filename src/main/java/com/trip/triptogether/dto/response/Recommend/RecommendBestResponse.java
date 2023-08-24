@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AllBelovedResponse {
+public class RecommendBestResponse {
     private Long id;
     private String title;
     private String city;
@@ -14,7 +14,7 @@ public class AllBelovedResponse {
     private Double rating;
     private Double likes;
 
-    public AllBelovedResponse(Recommend recommend) {
+    public RecommendBestResponse(Recommend recommend) {
         id = recommend.getId();
         title = recommend.getTitle();
         city = recommend.getAddress().getCity();
