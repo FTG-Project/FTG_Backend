@@ -58,4 +58,31 @@ public class RecommendService {
         return responseService.getSingleResponse(HttpStatus.OK.value(), new HomeResponse(highRating, rowRating, random));
     }
 
+    public CommonResponse.ListResponse<RecommendListResponse> recommendListOrderById(Category category, Area area) {
+        List<Recommend> recommend = recommendRepository.findByCategoryAndAreaOrderById(category, area);
+        List<RecommendListResponse> response = recommend.stream()
+                .map(r -> new RecommendListResponse(r))
+                .collect(toList());
+
+        return responseService.getListResponse(HttpStatus.OK.value(), response);
+    }
+
+    public CommonResponse.ListResponse<RecommendListResponse> recommendListOrderByRating(Category category, Area area) {
+        List<Recommend> recommend = recommendRepository.findByCategoryAndAreaOrderByRatingDesc(category, area);
+        List<RecommendListResponse> response = recommend.stream()
+                .map(r -> new RecommendListResponse(r))
+                .collect(toList());
+
+        return responseService.getListResponse(HttpStatus.OK.value(), response);
+    }
+
+    public CommonResponse.ListResponse<RecommendListResponse> recommendListOrderByLikes(Category category, Area area) {
+        List<Recommend> recommend = recommendRepository.findByCategoryAndAreaOrderByLikesDesc(category, area);
+        List<RecommendListResponse> response = recommend.stream()
+                .map(r -> new RecommendListResponse(r))
+                .collect(toList());
+
+        return responseService.getListResponse(HttpStatus.OK.value(), response);
+    }
+
 }
