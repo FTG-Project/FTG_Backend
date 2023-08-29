@@ -1,4 +1,4 @@
-package com.trip.triptogether.repository;
+package com.trip.triptogether.repository.recommend;
 
 import com.trip.triptogether.constant.Area;
 import com.trip.triptogether.constant.Category;

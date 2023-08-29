@@ -8,7 +8,7 @@ import com.trip.triptogether.dto.response.Recommend.*;
 import com.trip.triptogether.dto.response.ResponseService;
 import com.trip.triptogether.dto.response.home.HomeAreaResponse;
 import com.trip.triptogether.dto.response.home.HomeResponse;
-import com.trip.triptogether.repository.RecommendRepository;
+import com.trip.triptogether.repository.recommend.RecommendRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
