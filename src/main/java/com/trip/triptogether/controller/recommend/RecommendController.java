@@ -57,12 +57,12 @@ public class RecommendController {
 
     @PostMapping(value = "/review",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CommonResponse.SingleResponse<ReviewResponse>> createReview(
-            UserPrincipal userPrincipal, @RequestPart(value = "reviewRequest") ReviewRequest reviewRequest , @RequestPart(required = false) List<MultipartFile> files ,@RequestParam Long recommendId){
+            @RequestPart(value = "reviewRequest") ReviewRequest reviewRequest , @RequestPart(required = false) List<MultipartFile> files ,@RequestParam Long recommendId){
         List<String> photoList = new ArrayList<>();
 
         if (files != null && !files.isEmpty()) {
             photoList = s3Service.upload(files);
         }
-        return ResponseEntity.ok().body(reviewService.createReview(userPrincipal,reviewRequest, photoList, recommendId));
+        return ResponseEntity.ok().body(reviewService.createReview(reviewRequest, photoList, recommendId));
     }
 }
