@@ -13,12 +13,8 @@ import java.util.List;
 
 
 public interface RecommendRepository extends JpaRepository<Recommend, Long> {
-    @Query("SELECT new " +
-            "com.trip.triptogether.dto.response.Recommend.RecommendBelovedResponse(p.id, p.title, p.address.province, p.address.city, p.thumbnail, p.rating, p.likes) " +
-            "FROM Recommend p " +
-            "WHERE p.category = :category AND p.area = :area " +
-            "ORDER BY (p.likes * 0.5 + p.rating * 0.5) DESC")
-    List<RecommendBelovedResponse> findTop5RecommendByCombinedScore(@Param("category") Category category, @Param("area") Area area, Pageable pageable);
+    @Query("SELECT r FROM Recommend r WHERE r.category = :category AND r.area = :area ORDER BY (r.likes * 0.5 + r.rating * 0.5) DESC")
+    List<Recommend> findTop5RecommendByCombinedScore(@Param("category") Category category, @Param("area") Area area, Pageable pageable);
 
     List<Recommend> findTop10ByOrderByRatingDesc();
 
@@ -32,4 +28,9 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
     List<Recommend> findByCategoryAndAreaOrderByRatingDesc(Category category, Area area);
 
     List<Recommend> findByCategoryAndAreaOrderByLikesDesc(Category category, Area area);
+
+    List<Recommend> findByCategoryAndArea(Category category, Area area);
+
+    @Query("select r from Recommend r left join fetch r.reviewList where r.id = :id")
+    Recommend findRecommendFetchJoin(Long id);
 }

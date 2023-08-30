@@ -7,6 +7,7 @@ import com.trip.triptogether.dto.request.recommend.ReviewRequest;
 import com.trip.triptogether.dto.response.BoardResponse;
 import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.dto.response.Recommend.RecommendListResponse;
+import com.trip.triptogether.dto.response.Recommend.RecommendResponse;
 import com.trip.triptogether.dto.response.Recommend.ReviewResponse;
 import com.trip.triptogether.service.S3Service;
 import com.trip.triptogether.service.recommend.RecommendService;
@@ -33,26 +34,18 @@ public class RecommendController {
     private final ReviewService reviewService;
     private final S3Service s3Service;
 
-    @GetMapping("/{area}/{category}")
-    public ResponseEntity<CommonResponse.ListResponse<RecommendListResponse>> recommendListOrderById(
-            @PathVariable Area area, @PathVariable Category category, @RequestParam String sort) {
-        CommonResponse.ListResponse<RecommendListResponse> response;
+    @GetMapping("/{area}")
+    public ResponseEntity<CommonResponse.ListResponse<RecommendListResponse>> recommendList(
+            @PathVariable Area area, @RequestParam Category category, @RequestParam String sort) {
 
-        switch (sort) {
-            case "id":
-                response = recommendService.recommendListOrderById(category, area);
-                break;
-            case "rating":
-                response = recommendService.recommendListOrderByRating(category, area);
-                break;
-            case "likes":
-                response = recommendService.recommendListOrderByLikes(category, area);
-                break;
-            default:
-                return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok().body(recommendService.recommendList(category, area, sort));
+    }
 
-        return ResponseEntity.ok().body(response);
+    @GetMapping("/place")
+    public ResponseEntity<CommonResponse.SingleResponse<RecommendResponse>> recommendDetailed(
+            @RequestParam Long id) {
+
+        return ResponseEntity.ok().body(recommendService.recommendDetail(id));
     }
 
     @PostMapping(value = "/review",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

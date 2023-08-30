@@ -6,10 +6,7 @@ import com.trip.triptogether.domain.Recommend;
 import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.dto.response.Recommend.*;
 import com.trip.triptogether.dto.response.ResponseService;
-import com.trip.triptogether.dto.response.home.HomeAreaResponse;
-import com.trip.triptogether.dto.response.home.HomeResponse;
 import com.trip.triptogether.repository.recommend.RecommendRepository;
-import com.trip.triptogether.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -30,37 +27,62 @@ public class RecommendService {
     private final RecommendRepository recommendRepository;
     private final ResponseService responseService;
 
-    public CommonResponse.SingleResponse<HomeAreaResponse> areaBeloved(Area area) {
+    public CommonResponse.ListResponse<RecommendBelovedResponse> areaBeloved(Area area, Category category) {
         Pageable pageable = PageRequest.of(0, 5);
-        List<RecommendBelovedResponse> attraction = recommendRepository.findTop5RecommendByCombinedScore(Category.ATTRACTION, area, pageable);
-        List<RecommendBelovedResponse> restaurant = recommendRepository.findTop5RecommendByCombinedScore(Category.RESTAURANT, area, pageable);
-        List<RecommendBelovedResponse> show = recommendRepository.findTop5RecommendByCombinedScore(Category.SHOW, area, pageable);
 
-        return responseService.getSingleResponse(HttpStatus.OK.value(), new HomeAreaResponse(area, attraction, restaurant, show));
+        List<Recommend> recommend = recommendRepository.findTop5RecommendByCombinedScore(category, area, pageable);;
+        List<RecommendBelovedResponse> response = recommend.stream()
+                .map(r -> new RecommendBelovedResponse(r))
+                .collect(toList());
+
+        return responseService.getListResponse(HttpStatus.OK.value(), response);
 
     }
 
-    public CommonResponse.SingleResponse<HomeResponse> homeService() {
-        List<Recommend> highRatingRecommend = recommendRepository.findTop10ByOrderByRatingDesc();
-        List<RecommendBestResponse> highRating = highRatingRecommend.stream()
+    public CommonResponse.ListResponse<RecommendBestResponse> recommendBest(String sort) {
+        List<Recommend> recommend;
+
+        switch (sort) {
+            case "rowRating":
+                recommend = recommendRepository.findTop10ByOrderByRatingAsc();
+                break;
+            case "highRating":
+            default:
+                recommend = recommendRepository.findTop10ByOrderByRatingDesc();
+                break;
+        }
+        List<RecommendBestResponse> response = recommend.stream()
                 .map(r -> new RecommendBestResponse(r))
                 .collect(toList());
 
-        List<Recommend> rowRatingRecommend = recommendRepository.findTop10ByOrderByRatingAsc();
-        List<RecommendBestResponse> rowRating = rowRatingRecommend.stream()
-                .map(r -> new RecommendBestResponse(r))
-                .collect(toList());
+        return responseService.getListResponse(HttpStatus.OK.value(), response);
+    }
 
-        List<Recommend> randomRecommend = recommendRepository.findRandomRecommend();
-        List<RecommendRandomResponse> random = randomRecommend.stream()
+    public CommonResponse.ListResponse<RecommendRandomResponse> recommendRandom() {
+        List<Recommend> recommend = recommendRepository.findRandomRecommend();
+        List<RecommendRandomResponse> response = recommend.stream()
                 .map(r -> new RecommendRandomResponse(r))
                 .collect(toList());
 
-        return responseService.getSingleResponse(HttpStatus.OK.value(), new HomeResponse(highRating, rowRating, random));
+        return responseService.getListResponse(HttpStatus.OK.value(), response);
+
     }
 
-    public CommonResponse.ListResponse<RecommendListResponse> recommendListOrderById(Category category, Area area) {
-        List<Recommend> recommend = recommendRepository.findByCategoryAndAreaOrderById(category, area);
+    public CommonResponse.ListResponse<RecommendListResponse> recommendList(Category category, Area area, String sort) {
+        List<Recommend> recommend;
+
+        switch (sort) {
+            case "rating":
+                recommend = recommendRepository.findByCategoryAndAreaOrderByRatingDesc(category, area);
+                break;
+            case "likes":
+                recommend = recommendRepository.findByCategoryAndAreaOrderByLikesDesc(category, area);
+                break;
+            default:
+                recommend = recommendRepository.findByCategoryAndArea(category, area);
+                break;
+        }
+
         List<RecommendListResponse> response = recommend.stream()
                 .map(r -> new RecommendListResponse(r))
                 .collect(toList());
@@ -68,22 +90,12 @@ public class RecommendService {
         return responseService.getListResponse(HttpStatus.OK.value(), response);
     }
 
-    public CommonResponse.ListResponse<RecommendListResponse> recommendListOrderByRating(Category category, Area area) {
-        List<Recommend> recommend = recommendRepository.findByCategoryAndAreaOrderByRatingDesc(category, area);
-        List<RecommendListResponse> response = recommend.stream()
-                .map(r -> new RecommendListResponse(r))
+    public CommonResponse.SingleResponse<RecommendResponse> recommendDetail(Long id) {
+        Recommend recommend = recommendRepository.findRecommendFetchJoin(id);
+        List<ReviewResponse> reviewResponse = recommend.getReviewList().stream()
+                .map(review -> new ReviewResponse(review))
                 .collect(toList());
 
-        return responseService.getListResponse(HttpStatus.OK.value(), response);
+        return responseService.getSingleResponse(HttpStatus.OK.value(), new RecommendResponse(recommend, reviewResponse));
     }
-
-    public CommonResponse.ListResponse<RecommendListResponse> recommendListOrderByLikes(Category category, Area area) {
-        List<Recommend> recommend = recommendRepository.findByCategoryAndAreaOrderByLikesDesc(category, area);
-        List<RecommendListResponse> response = recommend.stream()
-                .map(r -> new RecommendListResponse(r))
-                .collect(toList());
-
-        return responseService.getListResponse(HttpStatus.OK.value(), response);
-    }
-
 }

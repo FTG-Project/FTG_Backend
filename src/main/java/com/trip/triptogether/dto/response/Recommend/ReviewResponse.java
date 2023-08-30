@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 @Getter
 public class ReviewResponse {
-
     private String writer;
 
 
