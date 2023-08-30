@@ -69,6 +69,7 @@ public class BoardRepositoryImpl extends QuerydslRepositorySupport implements Bo
     public PageImpl<BoardResponse.PageResponse> getPageListWithSearch(SortType sortType, BoardType boardType, SearchType searchCondition, Pageable pageable){
         JPQLQuery<Board> query = queryFactory.select(board).from(board);
         //동적 쿼리를 위해 BooleanBuilder(querydsl에서 제공하는 클래스) 사용
+        //To do : BooleanExpression
         BooleanBuilder whereClause = new BooleanBuilder();
         //whereClause 기준에 맞는 레코드만 출력
         whereClause.and(ContentMessageTitleEq(searchCondition.getContent(), searchCondition.getTitle()))

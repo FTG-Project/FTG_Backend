@@ -23,14 +23,14 @@ public class CommentController {
     }
 
     //댓글 수정 (content만 수정하게 할꺼면 commentRequest 굳이!?)
-    @PutMapping("/{boardId}")
-    public CommonResponse updateComment(@PathVariable Long boardId, @RequestBody CommentReqeust commentReqeust){
-        return commentService.updateComment(boardId,commentReqeust);
+    @PutMapping("/{commentId}")
+    public CommonResponse updateComment(@PathVariable Long commentId, @RequestBody CommentReqeust commentReqeust){
+        return commentService.updateComment(commentId,commentReqeust);
     }
 
     //댓글 삭제
-    @DeleteMapping("/{boardId}")
-    public CommonResponse deleteComment(@PathVariable Long boardId){
-        return commentService.deleteComment(boardId);
+    @DeleteMapping("/{commentId}")
+    public CommonResponse deleteComment(@PathVariable Long commentId){
+        return commentService.deleteComment(commentId);
     }
 }

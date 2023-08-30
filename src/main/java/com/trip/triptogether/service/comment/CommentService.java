@@ -52,12 +52,6 @@ public class CommentService {
                     .orElseThrow(()->new NotFoundException("Could not found comment id : " + commentReqeust.getParentId()));
             comment.addParent(parentComment);
         }
-//        Comment savedComment=Comment.builder()
-//                .writer(user.getNickname())
-//                .content(commentReqeust.getContent())
-//                .user(user)
-//                .board(board)
-//                .build();
         comment.setWriter(user.getNickname());
         comment.setBoard(board);
         comment.setContent(commentReqeust.getContent());
