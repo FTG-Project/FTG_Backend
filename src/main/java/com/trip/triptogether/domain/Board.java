@@ -1,11 +1,10 @@
 package com.trip.triptogether.domain;
 
 
+import com.trip.triptogether.dto.request.board.BoardRequest;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +27,9 @@ public class Board extends BaseTime{
     @Column
     private String contents; //내용
 
+    @ColumnDefault("0")
     @Column
-    private Integer view_cnt; //조회수
+    private int view_cnt; //조회수
 
     @Column
     private String writer; //작성자
@@ -50,12 +50,15 @@ public class Board extends BaseTime{
     @Builder.Default
     private List<Comment> commentList=new ArrayList<>();
 
+    @ColumnDefault("0")
+    @Column
+    private int likecnt;
 
-    public void addPhoto(Photo photo){
-        photoList.add(photo);
-        photo.addBoard(this);
+
+    public void updateBoard(BoardRequest boardRequest){
+        this.title=boardRequest.getTitle();
+        this.contents=boardRequest.getContent();
+        this.boardType=boardRequest.getType();
+
     }
-
-
-
 }
