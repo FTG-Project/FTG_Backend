@@ -40,6 +40,13 @@ public class WeatherService {
     private final TransLocalPoint transLocalPoint;
 
     public WeatherResponse getWeatherByPos(double latitude, double longitude) {
+        /**
+         * 기상청 API 사용 시 다른 나라의 위도, 경도를 입력하면 값이 안 나옴.
+         * 위도 33~43, 경도 124~132 -> 32~44, 123~133 으로 조금 더 넓게 잡음.
+         */
+        if (latitude > 44 || latitude < 32 || longitude > 133 || longitude < 123) {
+            throw new IllegalArgumentException("Latitude and longitude are not valid");
+        }
         // convert latitude and longitude to nx, ny
         LatXLngY convertedCoordinates = transLocalPoint.convertGRID_GPS(0, latitude, longitude);
         // call weather api

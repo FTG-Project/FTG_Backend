@@ -9,6 +9,6 @@ import lombok.*;
 @Builder
 public class WeatherRequest {
     private String area;
-    private double latitude;
-    private double longitude;
+    private Double latitude;
+    private Double longitude;
 }

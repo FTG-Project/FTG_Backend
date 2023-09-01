@@ -22,8 +22,14 @@ public class WeatherController {
     @GetMapping
     public CommonResponse.SingleResponse<WeatherResponse> getWeather(@RequestBody WeatherRequest weatherRequest) {
         if (weatherRequest.getArea() == null) { //latitude, longitude -> weather info
+            if (weatherRequest.getLatitude() == null && weatherRequest.getLongitude() == null) {
+                throw new IllegalArgumentException("Area or (Latitude, Longitude) are required");
+            } else if (weatherRequest.getLongitude() == null || weatherRequest.getLatitude() == null) {
+                throw new IllegalArgumentException("Latitude and longitude are required");
+            }
             return responseService.getSingleResponse(HttpStatus.OK.value(),
-                    weatherService.getWeatherByPos(weatherRequest.getLatitude(), weatherRequest.getLongitude()));
+                    weatherService.getWeatherByPos(weatherRequest.getLatitude().doubleValue(),
+                                                   weatherRequest.getLongitude().doubleValue()));
         } else { //area -> weather info
             return responseService.getSingleResponse(HttpStatus.OK.value(), weatherService.getWeatherByArea(weatherRequest.getArea()));
         }
