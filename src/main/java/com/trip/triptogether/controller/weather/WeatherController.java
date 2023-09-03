@@ -1,6 +1,5 @@
 package com.trip.triptogether.controller.weather;
 
-import com.trip.triptogether.dto.request.weather.WeatherRequest;
 import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.dto.response.ResponseService;
 import com.trip.triptogether.dto.response.weather.WeatherResponse;
@@ -20,18 +19,20 @@ public class WeatherController {
     private final ResponseService responseService;
 
     @GetMapping
-    public CommonResponse.SingleResponse<WeatherResponse> getWeather(@RequestBody WeatherRequest weatherRequest) {
-        if (weatherRequest.getArea() == null) { //latitude, longitude -> weather info
-            if (weatherRequest.getLatitude() == null && weatherRequest.getLongitude() == null) {
+    public CommonResponse.SingleResponse<WeatherResponse> getWeather(@RequestParam(required = false) String area,
+                                                                     @RequestParam(required = false) Double latitude,
+                                                                     @RequestParam(required = false) Double longitude) {
+        if (area == null) { //latitude, longitude -> weather info
+            if (latitude == null && longitude == null) {
                 throw new IllegalArgumentException("Area or (Latitude, Longitude) are required");
-            } else if (weatherRequest.getLongitude() == null || weatherRequest.getLatitude() == null) {
+            } else if (longitude == null || latitude == null) {
                 throw new IllegalArgumentException("Latitude and longitude are required");
             }
             return responseService.getSingleResponse(HttpStatus.OK.value(),
-                    weatherService.getWeatherByPos(weatherRequest.getLatitude().doubleValue(),
-                                                   weatherRequest.getLongitude().doubleValue()));
+                    weatherService.getWeatherByPos(latitude.doubleValue(),
+                                                   longitude.doubleValue()));
         } else { //area -> weather info
-            return responseService.getSingleResponse(HttpStatus.OK.value(), weatherService.getWeatherByArea(weatherRequest.getArea()));
+            return responseService.getSingleResponse(HttpStatus.OK.value(), weatherService.getWeatherByArea(area));
         }
     }
 }

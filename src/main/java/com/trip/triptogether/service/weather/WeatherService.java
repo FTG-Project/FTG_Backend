@@ -1,8 +1,8 @@
 package com.trip.triptogether.service.weather;
 
-import com.trip.triptogether.domain.Region;
 import com.trip.triptogether.dto.response.weather.WeatherResponse;
-import com.trip.triptogether.repository.region.RegionRepository;
+import com.trip.triptogether.util.weather.Position;
+import com.trip.triptogether.util.weather.RegionUtil;
 import com.trip.triptogether.util.weather.TransLocalPoint;
 import com.trip.triptogether.util.weather.TransLocalPoint.LatXLngY;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +34,8 @@ public class WeatherService {
 
     @Value("${weather.serviceKey}")
     private String serviceKey;
-
-    private final RegionRepository regionRepository;
     private final TransLocalPoint transLocalPoint;
+    private final RegionUtil regionUtil;
 
     public WeatherResponse getWeatherByPos(double latitude, double longitude) {
         /**
@@ -56,9 +54,7 @@ public class WeatherService {
 
     public WeatherResponse getWeatherByArea(String area) {
         // convert area to nx, ny
-        Region region = regionRepository.findById(area).orElseThrow(
-                () -> new NoSuchElementException("This area does not exist."));
-        log.info("region : {}, {}, {}", region.getRegionName(), region.getNx(), region.getNy());
+        Position region = regionUtil.getPosition(area);
         // call weather api
         return lookUpWeather(region.getNy(), region.getNx());
     }
