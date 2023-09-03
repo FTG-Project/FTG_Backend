@@ -40,6 +40,10 @@ public class User {
     @Builder.Default
     private List<Board> boardList=new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private List<Comment> commentList=new ArrayList<>();
+
     public void updateRefreshToken(String updateRefreshToken) {
         this.refreshToken = updateRefreshToken;
     }

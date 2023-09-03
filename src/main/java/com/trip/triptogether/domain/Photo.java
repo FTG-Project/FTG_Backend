@@ -34,14 +34,5 @@ public class Photo{
     @Column
     private Long fileSize;
 
-    public Photo(String savedFile, Board board){
-        this.savedFile=savedFile;
-        this.board=board;
-    }
-
-    public void addBoard(Board board){
-        this.board=board;
-    }
-
 }
 

@@ -1,6 +1,7 @@
 package com.trip.triptogether.dto.request;
 import com.trip.triptogether.constant.GenericMapper;
 import com.trip.triptogether.domain.Board;
+import com.trip.triptogether.dto.request.board.BoardRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
