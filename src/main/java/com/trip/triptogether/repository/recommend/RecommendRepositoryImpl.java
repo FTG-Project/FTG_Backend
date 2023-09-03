@@ -27,9 +27,6 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
 
     @Override
     public List<RecommendListResponse> recommendList(Category category, Area area) {
-        NumberPath<Long> idPath = Expressions.numberPath(Long.class, "id");
-        NumberPath<Double> ratingPath = Expressions.numberPath(Double.class, "rating");
-        NumberPath<Double> likesPath = Expressions.numberPath(Double.class, "likes");
 
         return queryFactory
                 .select(
