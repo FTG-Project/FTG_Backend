@@ -3,10 +3,12 @@ package com.trip.triptogether.service.recommend;
 import com.trip.triptogether.constant.Area;
 import com.trip.triptogether.constant.Category;
 import com.trip.triptogether.domain.Recommend;
+import com.trip.triptogether.domain.Review;
 import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.dto.response.Recommend.*;
 import com.trip.triptogether.dto.response.ResponseService;
 import com.trip.triptogether.repository.recommend.RecommendRepository;
+import com.trip.triptogether.repository.recommend.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -69,29 +71,15 @@ public class RecommendService {
     }
 
     public CommonResponse.ListResponse<RecommendListResponse> recommendList(Category category, Area area, String sort) {
-        List<Recommend> recommend;
 
-        switch (sort) {
-            case "rating":
-                recommend = recommendRepository.findByCategoryAndAreaOrderByRatingDesc(category, area);
-                break;
-            case "likes":
-                recommend = recommendRepository.findByCategoryAndAreaOrderByLikesDesc(category, area);
-                break;
-            default:
-                recommend = recommendRepository.findByCategoryAndArea(category, area);
-                break;
-        }
 
-        List<RecommendListResponse> response = recommend.stream()
-                .map(r -> new RecommendListResponse(r))
-                .collect(toList());
+        List<RecommendListResponse> recommendList = recommendRepository.recommendList(category, area);
 
-        return responseService.getListResponse(HttpStatus.OK.value(), response);
+        return responseService.getListResponse(HttpStatus.OK.value(), recommendList);
     }
 
     public CommonResponse.SingleResponse<RecommendResponse> recommendDetail(Long id) {
-        Recommend recommend = recommendRepository.findRecommendFetchJoin(id);
+        Recommend recommend = recommendRepository.findAllFetchJoinReview(id);
         List<ReviewResponse> reviewResponse = recommend.getReviewList().stream()
                 .map(review -> new ReviewResponse(review))
                 .collect(toList());

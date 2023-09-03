@@ -56,4 +56,8 @@ public class Recommend {
     @Builder.Default
     private List<Review> reviewList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "recommend")
+    @Builder.Default
+    private List<RecommendLikes> recommendLikesList = new ArrayList<>();
+
 }
