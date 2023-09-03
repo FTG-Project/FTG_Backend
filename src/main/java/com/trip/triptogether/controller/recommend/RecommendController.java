@@ -6,10 +6,12 @@ import com.trip.triptogether.dto.request.BoardRequest;
 import com.trip.triptogether.dto.request.recommend.ReviewRequest;
 import com.trip.triptogether.dto.response.BoardResponse;
 import com.trip.triptogether.dto.response.CommonResponse;
+import com.trip.triptogether.dto.response.Recommend.RecommendLikesResponse;
 import com.trip.triptogether.dto.response.Recommend.RecommendListResponse;
 import com.trip.triptogether.dto.response.Recommend.RecommendResponse;
 import com.trip.triptogether.dto.response.Recommend.ReviewResponse;
 import com.trip.triptogether.service.S3Service;
+import com.trip.triptogether.service.recommend.RecommendLikesService;
 import com.trip.triptogether.service.recommend.RecommendService;
 import com.trip.triptogether.service.recommend.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,8 @@ import java.util.List;
 public class RecommendController {
     private final RecommendService recommendService;
     private final ReviewService reviewService;
+
+    private final RecommendLikesService recommendLikesService;
     private final S3Service s3Service;
 
     @GetMapping("/{area}")
@@ -57,5 +61,10 @@ public class RecommendController {
             photoList = s3Service.upload(files);
         }
         return ResponseEntity.ok().body(reviewService.createReview(reviewRequest, photoList, recommendId));
+    }
+
+    @GetMapping("/likes")
+    public ResponseEntity<CommonResponse.SingleResponse<RecommendLikesResponse>> addLikes(@RequestParam Long id) {
+        return ResponseEntity.ok().body(recommendLikesService.addLikes(id));
     }
 }
