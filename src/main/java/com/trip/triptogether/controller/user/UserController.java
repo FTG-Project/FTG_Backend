@@ -1,8 +1,8 @@
 package com.trip.triptogether.controller.user;
 
-import com.trip.triptogether.constant.Role;
 import com.trip.triptogether.dto.request.user.UserSaveRequest;
-import com.trip.triptogether.dto.response.user.UserSaveResponse;
+import com.trip.triptogether.dto.response.CommonResponse;
+import com.trip.triptogether.dto.response.ResponseService;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.service.user.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,10 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -23,32 +20,22 @@ import java.util.NoSuchElementException;
 @Slf4j
 @RequestMapping("/users")
 public class UserController {
-
-    //url 은 api 명세서 작성하고 변경
-
     private final UserService userService;
     private final JwtService jwtService;
+    private final ResponseService responseService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<UserSaveResponse> signUp(@AuthenticationPrincipal UserDetails user,
-                                                   @Valid @RequestBody UserSaveRequest userSaveDto,
-                                                   HttpServletResponse response) {
-        if (user == null) {
-            throw new IllegalStateException("user is not exist at db");
-        }
-
-        if (user.getAuthorities().contains(new SimpleGrantedAuthority(Role.USER.getKey()))) {
-            throw new IllegalArgumentException("already registered user");
-        }
-
-        return ResponseEntity.ok(userService.signUp(user.getUsername(), userSaveDto, response));
+    public CommonResponse.GeneralResponse signUp(@Valid @RequestBody UserSaveRequest userSaveDto,
+                                 HttpServletResponse response) {
+        userService.signUp(userSaveDto, response);
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "User request completed");
     }
 
     @PostMapping("/logout")
-    public void logout(@AuthenticationPrincipal UserDetails user, HttpServletRequest request) {
-
+    public CommonResponse.GeneralResponse logout(HttpServletRequest request) {
         String accessToken = jwtService.extractAccessToken(request).orElseThrow(
                 () -> new NoSuchElementException("access Token is not exist"));
-        userService.logout(user.getUsername(), accessToken);
+        userService.logout(accessToken);
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "logout success");
     }
 }

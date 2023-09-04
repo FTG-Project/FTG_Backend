@@ -1,5 +1,6 @@
 package com.trip.triptogether.dto.request.user;
 
+import com.trip.triptogether.constant.Language;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -10,7 +11,6 @@ import lombok.*;
 @Builder
 public class UserSaveRequest {
     @NotBlank(message = "nickname is essential")
-    String nickname;
-    @NotBlank(message = "language is essential")
-    String language;
+    private String nickname;
+    private Language language;
 }

@@ -1,10 +1,12 @@
 package com.trip.triptogether.util;
 
+import com.trip.triptogether.constant.Role;
 import com.trip.triptogether.domain.User;
 import com.trip.triptogether.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -43,5 +45,20 @@ public class SecurityUtil {
 
         //authentication.getPrincipal()에 값이 제대로 안담기면 null
         return Optional.ofNullable(username);
+    }
+
+    //TODO : 나중에 권한 추가되면 수정해야 함. 현재는 (USER, GUEST 만 있어서 이렇게 구현)
+    public Optional<Role> getAuthority() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null) {
+            return Optional.empty();
+        }
+
+        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority(Role.USER.getKey()))) {
+            return Optional.of(Role.USER);
+        } else {
+            return Optional.of(Role.GUEST);
+        }
     }
 }

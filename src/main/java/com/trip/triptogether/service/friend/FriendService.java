@@ -4,6 +4,7 @@ import com.trip.triptogether.domain.Friend;
 import com.trip.triptogether.domain.User;
 import com.trip.triptogether.dto.response.user.UserResponse;
 import com.trip.triptogether.repository.friend.FriendRepository;
+import com.trip.triptogether.repository.friend.FriendRepositoryImpl;
 import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
@@ -28,14 +29,14 @@ public class FriendService {
 
     // request friendship
     @Transactional
-    public void createFriendship(Long id) {
+    public void createFriend(Long userId) {
         User fromUser = securityUtil.getAuthUserOrThrow();
 
-        if (id == fromUser.getId()) {
+        if (userId == fromUser.getId()) {
             throw new IllegalStateException("can't request to yourself");
         }
 
-        User toUser = userRepository.findById(id).orElseThrow(
+        User toUser = userRepository.findById(userId).orElseThrow(
                 () -> new NoSuchElementException("user not found"));
 
         //이미 친구관계이거나 친구 요청을 한 상태라면 exception
@@ -84,9 +85,9 @@ public class FriendService {
                 () -> new NoSuchElementException("user not found"));
 
         //a->b : true and b->a : false 인 친구를 찾아야 함.
-        //결과값 : b->a friendship
+        //결과값 : b->a friend
         Friend findFriend = friendRepository.findFriendNotYetAccept(user.getId(), toUser.getId()).orElseThrow(
-                () -> new IllegalStateException("doesn't exist friendship request in db"));
+                () -> new IllegalStateException("doesn't exist friend request in db"));
 
         //Request accept -> update (areWeFriend = True) at reverse record
         findFriend.acceptFriendRequest();
@@ -97,5 +98,24 @@ public class FriendService {
         User user = securityUtil.getAuthUserOrThrow();
         return userRepository.findFriends(user.getId(), pageable)
                 .map(u -> new UserResponse(u.getId(), u.getNickname(), u.getProfileImage(), u.getEmail()));
+    }
+
+    @Transactional
+    public void deleteFriend(Long userId) {
+        User fromUser = securityUtil.getAuthUserOrThrow();
+
+        User deleteUser = userRepository.findById(userId).orElseThrow(
+                () -> new NoSuchElementException("user not found"));
+
+        List<Friend> friends = friendRepository.findFriendByFromToUser(fromUser.getId(), deleteUser.getId());
+
+        if (friends.size() != 2) {
+            log.info("size : {}", friends.size());
+            throw new IllegalStateException("Not a friend");
+        }
+
+        for (Friend friend : friends) {
+            friendRepository.delete(friend);
+        }
     }
 }

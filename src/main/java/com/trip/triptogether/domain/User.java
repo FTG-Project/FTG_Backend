@@ -1,5 +1,6 @@
 package com.trip.triptogether.domain;
 
+import com.trip.triptogether.constant.Language;
 import com.trip.triptogether.constant.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,8 @@ public class User {
 
     private String profileImage;
 
-    private String language;
+    @Enumerated(EnumType.STRING)
+    private Language language;
 
     private String refreshToken;
 
@@ -50,7 +52,7 @@ public class User {
 
 
     //Sign up
-    public void signUp(String nickname, String language) {
+    public void signUp(String nickname, Language language) {
         this.nickname = nickname;
         this.language = language;
         this.role = Role.USER;
