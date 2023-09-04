@@ -1,5 +1,7 @@
 package com.trip.triptogether.controller.friend;
 
+import com.trip.triptogether.dto.response.CommonResponse;
+import com.trip.triptogether.dto.response.ResponseService;
 import com.trip.triptogether.dto.response.user.UserResponse;
 import com.trip.triptogether.service.friend.FriendService;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,44 +21,42 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/friends")
 public class FriendController {
     private final FriendService friendService;
+    private final ResponseService responseService;
 
-    @PostMapping
-    public void createFriendship(@RequestParam Long id) {
-        friendService.createFriendship(id);
+    @PostMapping("/{userId}")
+    public CommonResponse.GeneralResponse createFriendship(@PathVariable Long userId) {
+        friendService.createFriend(userId);
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "Friend request completed");
     }
 
-    //TODO : 임시 URL, 임시 Response -> 변경 필요
     //아직 상대방이 수락하지 않은 친구 요청 조회
     @GetMapping("/toUserNotAccept")
-    public Page<UserResponse> findUsersToUserNotYetAccept(@RequestParam(defaultValue = "0") int page,
-                                            @RequestParam(defaultValue = "10") int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return friendService.findUserToUserNotYetAccept(pageRequest);
+    public ResponseEntity<Page<UserResponse>> findUsersToUserNotYetAccept(Pageable pageable) {
+        return ResponseEntity.ok().body(friendService.findUserToUserNotYetAccept(pageable));
     }
 
-    //TODO : 임시 URL, 임시 Response -> 변경 필요
     //아직 내가 수락하지 않은 친구 요청 조회
     @GetMapping("/fromUserNotAccept")
-    public Page<UserResponse> findUsersFromUserNotYetAccept(@RequestParam(defaultValue = "0") int page,
-                                                            @RequestParam(defaultValue = "10") int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return friendService.findUserFromUserNotYetAccept(pageRequest);
+    public ResponseEntity<Page<UserResponse>> findUsersFromUserNotYetAccept(Pageable pageable) {
+        return ResponseEntity.ok().body(friendService.findUserFromUserNotYetAccept(pageable));
     }
 
-    //TODO : 임시 URL, 임시 Response -> 변경 필요
     //친추 accept
     @PostMapping("/accept")
-    public void acceptFriend(@RequestParam Long id) {
-        friendService.acceptFriend(id);
+    public CommonResponse.GeneralResponse acceptFriend(@RequestParam Long userId) {
+        friendService.acceptFriend(userId);
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "Friend accept completed");
     }
 
-    //TODO : 임시 URL, 임시 Response -> 변경 필요
     //친구 모두 조회
     @GetMapping
-    public Page<UserResponse> findFriends(@RequestParam(defaultValue = "0") int page,
-                                          @RequestParam(defaultValue = "10") int size) {
-        PageRequest pageRequest = PageRequest.of(page, size);
-        return friendService.findFriends(pageRequest);
+    public ResponseEntity<Page<UserResponse>> findFriends(Pageable pageable) {
+        return ResponseEntity.ok().body(friendService.findFriends(pageable));
     }
 
+    @DeleteMapping("/{userId}")
+    public CommonResponse.GeneralResponse deleteFriend(@PathVariable Long userId) {
+        friendService.deleteFriend(userId);
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "Friend deletion complete");
+    }
 }

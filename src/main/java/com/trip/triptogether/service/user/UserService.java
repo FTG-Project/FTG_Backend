@@ -1,32 +1,37 @@
 package com.trip.triptogether.service.user;
 
+import com.trip.triptogether.constant.Role;
 import com.trip.triptogether.domain.User;
 import com.trip.triptogether.dto.request.user.UserSaveRequest;
-import com.trip.triptogether.dto.response.user.UserSaveResponse;
 import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.util.RedisUtil;
+import com.trip.triptogether.util.SecurityUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
 public class UserService {
-    private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RedisUtil redisUtil;
+    private final SecurityUtil securityUtil;
 
     @Transactional
-    public UserSaveResponse signUp(String userEmail, UserSaveRequest userSaveDto, HttpServletResponse response) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(
-                () -> new NoSuchElementException("user not found"));
+    public void signUp(UserSaveRequest userSaveDto, HttpServletResponse response) {
+        User user = securityUtil.getAuthUserOrThrow();
+
+        Role role = securityUtil.getAuthority().orElseThrow(
+                () -> new IllegalStateException("You do not have any authorities."));
+
+        if (role.equals(Role.USER)) {
+            throw new IllegalArgumentException("already registered user");
+        }
 
         //setting refreshToken
         String refreshToken = jwtService.createRefreshToken();
@@ -38,16 +43,12 @@ public class UserService {
 
         //signup success -> refreshToken 저장
         user.updateRefreshToken(refreshToken);
-
-        return UserSaveResponse.builder().userId(user.getId()).build();
     }
 
     @Transactional
-    public void logout(String userEmail, String accessToken) {
+    public void logout(String accessToken) {
         //TODO : error code 만들면 에러 변경
-        User user =  userRepository.findByEmail(userEmail).orElseThrow(
-                () -> new NoSuchElementException("user not found"));
-
+        User user =  securityUtil.getAuthUserOrThrow();
 
         Long expiration = jwtService.getExpiration(accessToken);
         if (expiration > 0) {
