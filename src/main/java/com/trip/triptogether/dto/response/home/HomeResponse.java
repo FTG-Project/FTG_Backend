@@ -1,6 +1,6 @@
 package com.trip.triptogether.dto.response.home;
 
-import com.trip.triptogether.dto.response.Recommend.AllBelovedResponse;
+import com.trip.triptogether.dto.response.Recommend.RecommendBestResponse;
 import com.trip.triptogether.dto.response.Recommend.RecommendRandomResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HomeResponse {
-    List<AllBelovedResponse> highRating;
-    List<AllBelovedResponse> rowRating;
+    List<RecommendBestResponse> highRating;
+    List<RecommendBestResponse> rowRating;
     List<RecommendRandomResponse> random;
 }

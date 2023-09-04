@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AttractionBelovedResponse {
+public class RecommendBelovedResponse {
     private Long id;
     private String title;
     private String province;
