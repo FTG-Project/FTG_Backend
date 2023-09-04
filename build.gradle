@@ -1,5 +1,3 @@
-
-
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.1.2'
@@ -63,6 +61,7 @@ dependencies {
 	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 	//aws
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.415'
+
 
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
