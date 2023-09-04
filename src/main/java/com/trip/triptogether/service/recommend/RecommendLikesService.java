@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
@@ -36,9 +37,19 @@ public class RecommendLikesService {
                 .user(toUser)
                 .recommend(recommendRepository.findById(recommendId).orElse(null))
                 .build();
-        recommendLikesRepository.save(recommendLikes);
-        toUser.getRecommendLikesList().add(recommendLikes);
+        String message;
+        List<RecommendLikes> existingLikes = recommendLikesRepository.findByUserIdAndRecommendId(toUser.getId(), recommendId);
 
-        return responseService.getSingleResponse(HttpStatus.OK.value(), new RecommendLikesResponse(recommendLikes));
+        if (existingLikes.isEmpty()) {
+            recommendLikesRepository.save(recommendLikes);
+            toUser.getRecommendLikesList().add(recommendLikes);
+            message = "add";
+        } else {
+            recommendLikesRepository.delete(existingLikes.get(0));
+            toUser.getRecommendLikesList().remove(existingLikes.get(0));
+            message = "remove";
+        }
+
+        return responseService.getSingleResponse(HttpStatus.OK.value(), new RecommendLikesResponse(recommendLikes, message));
     }
 }

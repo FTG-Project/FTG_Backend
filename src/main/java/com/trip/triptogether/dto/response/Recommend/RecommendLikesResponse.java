@@ -10,9 +10,11 @@ import lombok.Getter;
 public class RecommendLikesResponse {
     private Long userId;
     private Long recommendId;
+    private String message;
 
-    public RecommendLikesResponse(RecommendLikes recommendLikes) {
+    public RecommendLikesResponse(RecommendLikes recommendLikes, String message) {
         userId = recommendLikes.getUser().getId();
         recommendId = recommendLikes.getRecommend().getId();
+        this.message = message;
     }
 }

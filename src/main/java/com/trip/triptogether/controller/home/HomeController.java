@@ -22,8 +22,7 @@ public class HomeController {
     private final RecommendService recommendService;
 
     @GetMapping
-    public ResponseEntity<CommonResponse.ListResponse<RecommendBestResponse>> recommendBest(
-            @Valid HttpServletResponse response, @RequestParam String sort) {
+    public ResponseEntity<CommonResponse.ListResponse<RecommendBestResponse>> recommendBest(@RequestParam String sort) {
 
         return ResponseEntity.ok().body(recommendService.recommendBest(sort));
     }

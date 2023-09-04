@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -42,22 +44,9 @@ public class RecommendService {
     }
 
     public CommonResponse.ListResponse<RecommendBestResponse> recommendBest(String sort) {
-        List<Recommend> recommend;
+        List<RecommendBestResponse> recommend = recommendRepository.findTop10ByOrderByRating(sort);
 
-        switch (sort) {
-            case "rowRating":
-                recommend = recommendRepository.findTop10ByOrderByRatingAsc();
-                break;
-            case "highRating":
-            default:
-                recommend = recommendRepository.findTop10ByOrderByRatingDesc();
-                break;
-        }
-        List<RecommendBestResponse> response = recommend.stream()
-                .map(r -> new RecommendBestResponse(r))
-                .collect(toList());
-
-        return responseService.getListResponse(HttpStatus.OK.value(), response);
+        return responseService.getListResponse(HttpStatus.OK.value(), recommend);
     }
 
     public CommonResponse.ListResponse<RecommendRandomResponse> recommendRandom() {
@@ -71,10 +60,19 @@ public class RecommendService {
     }
 
     public CommonResponse.ListResponse<RecommendListResponse> recommendList(Category category, Area area, String sort) {
-
-
         List<RecommendListResponse> recommendList = recommendRepository.recommendList(category, area);
 
+        switch (sort) {
+            case "rating":
+                Collections.sort(recommendList, Comparator.comparingDouble(RecommendListResponse::getRating).reversed());
+                break;
+            case "likes":
+                Collections.sort(recommendList, Comparator.comparingLong(RecommendListResponse::getLikes).reversed());
+                break;
+            case "id":
+            default:
+                break;
+        }
         return responseService.getListResponse(HttpStatus.OK.value(), recommendList);
     }
 
