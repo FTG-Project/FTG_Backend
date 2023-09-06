@@ -10,6 +10,7 @@ import com.trip.triptogether.util.SecurityUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,9 @@ public class UserService {
     private final JwtService jwtService;
     private final RedisUtil redisUtil;
     private final SecurityUtil securityUtil;
+
+    @Value("${profile.default}")
+    private String defaultProfileImage;
 
     @Transactional
     public void signUp(UserSaveRequest userSaveDto, HttpServletResponse response) {
@@ -38,6 +42,7 @@ public class UserService {
         jwtService.setRefreshTokenHeader(response, refreshToken);
 
         //TODO : S3 연결하면 defaultImageUrl 넣기
+        user.updateProfileImage(defaultProfileImage);
 
         user.signUp(userSaveDto.getNickname(), userSaveDto.getLanguage());
 

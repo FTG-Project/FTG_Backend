@@ -58,6 +58,11 @@ public class User {
         this.role = Role.USER;
     }
 
+    //Update profile image
+    public void updateProfileImage(String imageUrl) {
+        this.profileImage = imageUrl;
+    }
+
     public void logout() {
         this.refreshToken = null;
     }
