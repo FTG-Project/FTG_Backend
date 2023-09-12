@@ -16,7 +16,7 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 
 import static com.trip.triptogether.domain.QRecommend.recommend;
-import static com.trip.triptogether.domain.QRecommendLikes.recommendLikes;
+import static com.trip.triptogether.domain.QScrap.scrap;
 import static com.trip.triptogether.domain.QReview.review;
 
 public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
@@ -31,9 +31,9 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
     public List<RecommendListResponse> recommendList(Category category, Area area) {
 
         JPQLQuery<Long> likes = JPAExpressions
-                .select(recommendLikes.user.id.count())
-                .from(recommendLikes)
-                .where(recommendLikes.recommend.id.eq(recommend.id));
+                .select(scrap.user.id.count())
+                .from(scrap)
+                .where(scrap.recommend.id.eq(recommend.id));
 
 
         return queryFactory
@@ -59,9 +59,9 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
     public List<RecommendBestResponse> findTop10() {
 
         JPQLQuery<Long> likes = JPAExpressions
-                .select(recommendLikes.user.id.count())
-                .from(recommendLikes)
-                .where(recommendLikes.recommend.id.eq(recommend.id));
+                .select(scrap.user.id.count())
+                .from(scrap)
+                .where(scrap.recommend.id.eq(recommend.id));
 
         return queryFactory
                 .select(
@@ -85,9 +85,9 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
     @Override
     public List<RecommendBelovedResponse> findTop5RecommendByAreaAndCategoryOrderByRating(Area area, Category category) {
         JPQLQuery<Long> likes = JPAExpressions
-                .select(recommendLikes.user.id.count())
-                .from(recommendLikes)
-                .where(recommendLikes.recommend.id.eq(recommend.id));
+                .select(scrap.user.id.count())
+                .from(scrap)
+                .where(scrap.recommend.id.eq(recommend.id));
 
         return queryFactory
                 .select(
