@@ -12,8 +12,6 @@ import java.util.List;
 
 
 public interface RecommendRepository extends JpaRepository<Recommend, Long>, RecommendRepositoryCustom {
-    @Query("SELECT r FROM Recommend r WHERE r.category = :category AND r.area = :area ORDER BY (r.likes * 0.5 + r.rating * 0.5) DESC")
-    List<Recommend> findTop5RecommendByCombinedScore(@Param("category") Category category, @Param("area") Area area, Pageable pageable);
 
     @Query(value = "SELECT * FROM recommend ORDER BY RAND() LIMIT 5", nativeQuery = true)
     List<Recommend> findRandomRecommend();

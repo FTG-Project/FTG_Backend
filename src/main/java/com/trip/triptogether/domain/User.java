@@ -46,7 +46,7 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @Builder.Default
-    private List<RecommendLikes> recommendLikesList = new ArrayList<>();
+    private List<Scrap> scrapList = new ArrayList<>();
 
     public void updateRefreshToken(String updateRefreshToken) {
         this.refreshToken = updateRefreshToken;

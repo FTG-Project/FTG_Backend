@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecommendLikes {
+public class Scrap {
     @Id @GeneratedValue
     Long id;
 

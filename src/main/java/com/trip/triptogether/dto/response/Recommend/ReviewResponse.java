@@ -16,6 +16,8 @@ public class ReviewResponse {
 
     private String content;
 
+    private Double rating;
+
     private List<String> photoList;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")

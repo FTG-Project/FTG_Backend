@@ -27,15 +27,14 @@ public class HomeController {
         return ResponseEntity.ok().body(recommendService.recommendBest(sort));
     }
     @GetMapping("/random")
-    public ResponseEntity<CommonResponse.ListResponse<RecommendRandomResponse>> recommendRandom(
-            @Valid HttpServletResponse response) {
+    public ResponseEntity<CommonResponse.ListResponse<RecommendRandomResponse>> recommendRandom() {
 
         return ResponseEntity.ok().body(recommendService.recommendRandom());
     }
 
     @GetMapping("/{Area}")
     public ResponseEntity<CommonResponse.ListResponse<RecommendBelovedResponse>> homeArea(
-            @PathVariable("Area") Area area, @RequestParam Category category, @Valid HttpServletResponse response) {
+            @PathVariable("Area") Area area, @RequestParam Category category) {
 
         return ResponseEntity.ok().body(recommendService.areaBeloved(area, category));
     }

@@ -8,6 +8,7 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.trip.triptogether.constant.Area;
 import com.trip.triptogether.constant.Category;
+import com.trip.triptogether.dto.response.Recommend.RecommendBelovedResponse;
 import com.trip.triptogether.dto.response.Recommend.RecommendBestResponse;
 import com.trip.triptogether.dto.response.Recommend.RecommendListResponse;
 import jakarta.persistence.EntityManager;
@@ -55,14 +56,7 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
     }
 
     @Override
-    public List<RecommendBestResponse> findTop10ByOrderByRating(String sort) {
-        OrderSpecifier<?> orderSpecifier;
-
-        if (sort.equals("rowRating")) {
-            orderSpecifier = review.rating.avg().asc();
-        } else {
-            orderSpecifier = review.rating.avg().desc();
-        }
+    public List<RecommendBestResponse> findTop10() {
 
         JPQLQuery<Long> likes = JPAExpressions
                 .select(recommendLikes.user.id.count())
@@ -84,8 +78,35 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
                 .from(recommend)
                 .leftJoin(review).on(recommend.id.eq(review.recommend.id))
                 .groupBy(recommend.id)
-                .orderBy(orderSpecifier)
                 .limit(10)
+                .fetch();
+    }
+
+    @Override
+    public List<RecommendBelovedResponse> findTop5RecommendByAreaAndCategoryOrderByRating(Area area, Category category) {
+        JPQLQuery<Long> likes = JPAExpressions
+                .select(recommendLikes.user.id.count())
+                .from(recommendLikes)
+                .where(recommendLikes.recommend.id.eq(recommend.id));
+
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                RecommendBelovedResponse.class,
+                                recommend.id,
+                                recommend.title,
+                                Expressions.stringTemplate("concat({0}, ' ', {1})", recommend.address.province, recommend.address.city).as("address"),
+                                recommend.thumbnail,
+                                review.rating.avg(),
+                                likes
+                        )
+                )
+                .from(recommend)
+                .where(recommend.area.eq(area), recommend.category.eq(category))
+                .leftJoin(review).on(recommend.id.eq(review.recommend.id))
+                .groupBy(recommend.id)
+                .orderBy(review.rating.avg().desc())
+                .limit(5)
                 .fetch();
     }
 }
