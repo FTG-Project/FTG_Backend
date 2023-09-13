@@ -40,7 +40,7 @@ public class RecommendService {
 
         switch (sort) {
             case "scrap":
-                Collections.sort(recommend, Comparator.comparingLong(RecommendBestResponse::getLikes).reversed());
+                Collections.sort(recommend, Comparator.comparingLong(RecommendBestResponse::getScraps).reversed());
                 break;
             case "rating":
             default:
@@ -69,7 +69,7 @@ public class RecommendService {
                 Collections.sort(recommendList, Comparator.comparingDouble(RecommendListResponse::getRating).reversed());
                 break;
             case "scrap":
-                Collections.sort(recommendList, Comparator.comparingLong(RecommendListResponse::getLikes).reversed());
+                Collections.sort(recommendList, Comparator.comparingLong(RecommendListResponse::getScraps).reversed());
                 break;
             case "id":
             default:
