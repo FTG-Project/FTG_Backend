@@ -12,5 +12,5 @@ public class RecommendBelovedResponse {
     private String address;
     private String image;
     private Double rating;
-    private Double scraps;
+    private Long scraps;
 }
