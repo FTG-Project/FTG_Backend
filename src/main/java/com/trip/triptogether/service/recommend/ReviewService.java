@@ -1,14 +1,14 @@
 package com.trip.triptogether.service.recommend;
 
-import com.trip.triptogether.domain.Photo;
 import com.trip.triptogether.domain.Review;
+import com.trip.triptogether.domain.ReviewPhoto;
 import com.trip.triptogether.domain.User;
 import com.trip.triptogether.dto.request.recommend.ReviewRequest;
 import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.dto.response.Recommend.ReviewResponse;
 import com.trip.triptogether.dto.response.ResponseService;
-import com.trip.triptogether.repository.PhotoRepository;
 import com.trip.triptogether.repository.recommend.RecommendRepository;
+import com.trip.triptogether.repository.recommend.ReviewPhotoRepository;
 import com.trip.triptogether.repository.recommend.ReviewRepository;
 import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.util.SecurityUtil;
@@ -28,7 +28,7 @@ import java.util.NoSuchElementException;
 public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
-    private final PhotoRepository photoRepository;
+    private final ReviewPhotoRepository reviewPhotoRepository;
     private final ResponseService responseService;
     private final RecommendRepository recommendRepository;
     private final SecurityUtil securityUtil;
@@ -51,8 +51,8 @@ public class ReviewService {
         List<String> photoList = new ArrayList<>();
 
         for (String file : files) {
-            Photo photo = new Photo(file,review);
-            photoRepository.save(photo);
+            ReviewPhoto photo = new ReviewPhoto(file, review);
+            reviewPhotoRepository.save(photo);
             review.addPhoto(photo);
             photoList.add(photo.getSavedFile());
 

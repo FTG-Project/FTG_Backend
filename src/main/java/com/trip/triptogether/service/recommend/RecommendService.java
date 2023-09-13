@@ -39,7 +39,7 @@ public class RecommendService {
         List<RecommendBestResponse> recommend = recommendRepository.findTop10();
 
         switch (sort) {
-            case "likes":
+            case "scrap":
                 Collections.sort(recommend, Comparator.comparingLong(RecommendBestResponse::getLikes).reversed());
                 break;
             case "rating":
@@ -68,7 +68,7 @@ public class RecommendService {
             case "rating":
                 Collections.sort(recommendList, Comparator.comparingDouble(RecommendListResponse::getRating).reversed());
                 break;
-            case "likes":
+            case "scrap":
                 Collections.sort(recommendList, Comparator.comparingLong(RecommendListResponse::getLikes).reversed());
                 break;
             case "id":

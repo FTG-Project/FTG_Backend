@@ -11,6 +11,6 @@ public class RecommendBestResponse {
     private String title;
     private String city;
     private String image;
-    private Long likes;
+    private Long scraps;
     private Double rating;
 }

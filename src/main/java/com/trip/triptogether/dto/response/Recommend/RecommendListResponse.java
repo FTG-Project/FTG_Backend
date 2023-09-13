@@ -14,7 +14,7 @@ public class RecommendListResponse {
     private String title;
     private String image;
     private String address;
-    private Long likes;
+    private Long scraps;
     private Double rating;
 
 }

@@ -1,6 +1,5 @@
 package com.trip.triptogether.repository.recommend;
 
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -30,7 +29,7 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
     @Override
     public List<RecommendListResponse> recommendList(Category category, Area area) {
 
-        JPQLQuery<Long> likes = JPAExpressions
+        JPQLQuery<Long> scraps = JPAExpressions
                 .select(scrap.user.id.count())
                 .from(scrap)
                 .where(scrap.recommend.id.eq(recommend.id));
@@ -44,7 +43,7 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
                                 recommend.title,
                                 recommend.thumbnail,
                                 Expressions.stringTemplate("concat({0}, ' ', {1})", recommend.address.province, recommend.address.city).as("address"),
-                                likes,
+                                scraps,
                                 review.rating.avg()
                         )
                 )
@@ -58,7 +57,7 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
     @Override
     public List<RecommendBestResponse> findTop10() {
 
-        JPQLQuery<Long> likes = JPAExpressions
+        JPQLQuery<Long> scraps = JPAExpressions
                 .select(scrap.user.id.count())
                 .from(scrap)
                 .where(scrap.recommend.id.eq(recommend.id));
@@ -71,7 +70,7 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
                                 recommend.title,
                                 recommend.address.city,
                                 recommend.thumbnail,
-                                likes,
+                                scraps,
                                 review.rating.avg()
                         )
                 )
@@ -84,7 +83,7 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
 
     @Override
     public List<RecommendBelovedResponse> findTop5RecommendByAreaAndCategoryOrderByRating(Area area, Category category) {
-        JPQLQuery<Long> likes = JPAExpressions
+        JPQLQuery<Long> scraps = JPAExpressions
                 .select(scrap.user.id.count())
                 .from(scrap)
                 .where(scrap.recommend.id.eq(recommend.id));
@@ -98,7 +97,7 @@ public class RecommendRepositoryImpl implements RecommendRepositoryCustom{
                                 Expressions.stringTemplate("concat({0}, ' ', {1})", recommend.address.province, recommend.address.city).as("address"),
                                 recommend.thumbnail,
                                 review.rating.avg(),
-                                likes
+                                scraps
                         )
                 )
                 .from(recommend)

@@ -30,7 +30,7 @@ public class Review extends BaseTime {
 
     @OneToMany(mappedBy = "review")
     @Builder.Default
-    private List<Photo> photoList = new ArrayList<>();
+    private List<ReviewPhoto> photoList = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recommend_id")
@@ -40,7 +40,7 @@ public class Review extends BaseTime {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public void addPhoto(Photo photo){
+    public void addPhoto(ReviewPhoto photo){
         photoList.add(photo);
         photo.addReview(this);
     }

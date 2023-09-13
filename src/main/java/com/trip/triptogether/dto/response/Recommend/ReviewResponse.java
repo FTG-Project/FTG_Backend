@@ -31,6 +31,7 @@ public class ReviewResponse {
         this.content = review.getContent();
         this.createdDate = review.getCreatedDate();
         this.updatedDate = review.getUpdatedDate();
+        this.rating = review.getRating();
 
         this.photoList = review.getPhotoList()
                 .stream()
