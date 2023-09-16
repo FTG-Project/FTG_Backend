@@ -1,7 +1,9 @@
 package com.trip.triptogether.security.oauth2.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trip.triptogether.constant.Role;
 import com.trip.triptogether.domain.User;
+import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.security.oauth2.CustomOAuth2User;
@@ -10,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -25,7 +28,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
-
+    private final ObjectMapper objectMapper;
     @Override
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -47,6 +50,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 log.info("ROLE : USER");
                 loginSuccess(response, oAuth2User);
             }
+
+            CommonResponse.GeneralResponse generalResponse = new CommonResponse.GeneralResponse(true, HttpStatus.OK.value(), "login success");
+            String result = objectMapper.writeValueAsString(generalResponse);
+            response.getWriter().write(result);
         }catch (Exception e) {
             log.error("occur error in process");
             throw e;
@@ -63,6 +70,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
         jwtService.updateRefreshToken(oAuth2User.getEmail(), refreshToken);
+
 
         //login -> setting refreshToken
         User user = userRepository.findByEmail(oAuth2User.getEmail()).orElseThrow(
