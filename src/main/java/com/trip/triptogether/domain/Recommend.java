@@ -58,6 +58,6 @@ public class Recommend {
 
     @OneToMany(mappedBy = "recommend")
     @Builder.Default
-    private List<Scrap> scrapList = new ArrayList<>();
+    private List<RecommendScrap> recommendScrapList = new ArrayList<>();
 
 }

@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
 @Service
 @Slf4j
 @Transactional
-public class ScrapService {
+public class RecommendScrapService {
     private final RecommendScrapRepository scrapRepository;
     private final ResponseService responseService;
     private final RecommendRepository recommendRepository;

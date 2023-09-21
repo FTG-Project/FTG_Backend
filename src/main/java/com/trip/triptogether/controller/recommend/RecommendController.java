@@ -8,7 +8,7 @@ import com.trip.triptogether.dto.response.Recommend.ScrapResponse;
 import com.trip.triptogether.dto.response.Recommend.RecommendListResponse;
 import com.trip.triptogether.dto.response.Recommend.RecommendResponse;
 import com.trip.triptogether.dto.response.Recommend.ReviewResponse;
-import com.trip.triptogether.service.recommend.ScrapService;
+import com.trip.triptogether.service.recommend.RecommendScrapService;
 import com.trip.triptogether.service.recommend.RecommendService;
 import com.trip.triptogether.service.recommend.ReviewService;
 import com.trip.triptogether.service.s3.S3Service;
@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,7 +28,7 @@ import java.util.List;
 public class RecommendController {
     private final RecommendService recommendService;
     private final ReviewService reviewService;
-    private final ScrapService scrapService;
+    private final RecommendScrapService recommendScrapService;
     private final S3Service s3Service;
 
     @GetMapping("/{area}")
@@ -54,6 +53,6 @@ public class RecommendController {
 
     @GetMapping("/scrap")
     public ResponseEntity<CommonResponse.SingleResponse<ScrapResponse>> addScrap(@RequestParam Long id) {
-        return ResponseEntity.ok().body(scrapService.addScrap(id));
+        return ResponseEntity.ok().body(recommendScrapService.addScrap(id));
     }
 }
