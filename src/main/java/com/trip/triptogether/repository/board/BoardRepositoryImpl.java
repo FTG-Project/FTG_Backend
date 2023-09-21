@@ -130,4 +130,3 @@ public class BoardRepositoryImpl extends QuerydslRepositorySupport implements Bo
     }
 }
 
-

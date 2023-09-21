@@ -44,6 +44,14 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @Builder.Default
+    private List<Review> reviewList=new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private List<RecommendScrap> recommendScrapList=new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
     private List<Comment> commentList=new ArrayList<>();
 
     public void updateRefreshToken(String updateRefreshToken) {
@@ -67,5 +75,4 @@ public class User {
         this.refreshToken = null;
     }
 }
-
 

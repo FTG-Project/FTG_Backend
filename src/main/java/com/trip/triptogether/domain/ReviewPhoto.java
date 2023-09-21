@@ -8,22 +8,20 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-
-
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Photo{
+public class ReviewPhoto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="board_id")
+    @JoinColumn(name="review_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Board board;
+    private Review review;
 
     @Column
     private String originFile;
@@ -34,4 +32,11 @@ public class Photo{
     @Column
     private Long fileSize;
 
+    public ReviewPhoto(String savedFile, Review review) {
+        this.savedFile = savedFile;
+        this.review = review;
+    }
+    public void addReview(Review review){
+        this.review=review;
+    }
 }
