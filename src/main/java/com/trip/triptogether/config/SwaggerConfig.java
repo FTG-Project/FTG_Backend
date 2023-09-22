@@ -30,7 +30,7 @@ public class SwaggerConfig {
                 .info(new Info().title("trip together")
                         .description("trip together api docs!!")
                         .version("v0.0.1")
-                        .license(new License().name("Apache 2.0").url("http://localhost:8080")))
+                        .license(new License().name("Apache 2.0").url("http://ec2-15-164-7-100.ap-northeast-2.compute.amazonaws.com:8080")))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
