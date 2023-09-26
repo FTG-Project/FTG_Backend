@@ -9,8 +9,9 @@ import com.trip.triptogether.domain.BoardType;
 import com.trip.triptogether.domain.SearchType;
 import com.trip.triptogether.domain.SortType;
 import com.trip.triptogether.dto.response.board.BoardResponse;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import java.util.List;
@@ -47,62 +48,64 @@ public class BoardRepositoryImpl extends QuerydslRepositorySupport implements Bo
     }
 
     @Override
-    public PageImpl<BoardResponse.PageResponse> getBoardList(Pageable pageable) {
-        List<Board> results = queryFactory
+    public Slice<BoardResponse.PageResponse> getBoardList(Pageable pageable) {
+        JPQLQuery<Board> query = queryFactory
                 .selectFrom(board)
-                .orderBy(board.createdDate.desc()) //기본은 최신순 정렬
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+                .orderBy(board.createdDate.desc()) // 기본 정렬은 최신순
+                .offset(pageable.getOffset()) // 시작점
+                .limit(pageable.getPageSize()); // 페이지 사이즈
 
-        long totalCount = queryFactory //slice로 구현하면 달라지려나?
-                .selectFrom(board)
-                .fetchCount();
+        // Execute the query and fetch the results
+        List<Board> results = query.fetch();
 
+        // Map the results to DTOs
         List<BoardResponse.PageResponse> dtoList = results.stream()
                 .map(BoardResponse.PageResponse::new)
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(dtoList, pageable, totalCount);
+        Slice<BoardResponse.PageResponse> slice;
+
+        if (dtoList.size() > pageable.getPageSize()) {
+            slice = new SliceImpl<>(dtoList, pageable, true);
+        } else {
+            slice = new SliceImpl<>(dtoList, pageable, false);
+        }
+
+        return slice;
     }
     @Override
-    public PageImpl<BoardResponse.PageResponse> getPageListWithSearch(SortType sortType, BoardType boardType, SearchType searchCondition, Pageable pageable){
-        JPQLQuery<Board> query = queryFactory.select(board).from(board);
-        //동적 쿼리를 위해 BooleanBuilder(querydsl에서 제공하는 클래스) 사용
-        //To do : BooleanExpression
+    public Slice<BoardResponse.PageResponse> getPageListWithSearch(SortType sortType, BoardType boardType, SearchType searchCondition, Pageable pageable) {
+        JPQLQuery<Board> query = queryFactory.selectFrom(board);
+
         BooleanBuilder whereClause = new BooleanBuilder();
-        //whereClause 기준에 맞는 레코드만 출력
         whereClause.and(ContentMessageTitleEq(searchCondition.getContent(), searchCondition.getTitle()))
                 .and(boardWriterEq(searchCondition.getWriter()));
 
-        //전체 레코드 포함?
         if (boardType == BoardType.자유) {
             whereClause.and(board.boardType.eq(BoardType.자유));
         } else if (boardType == BoardType.가이드) {
             whereClause.and(board.boardType.eq(BoardType.가이드));
         }
 
-
-        if (sortType == SortType.최신순 || sortType==null) {
+        if (sortType == SortType.최신순) {
             query.orderBy(board.createdDate.desc());
         } else if (sortType == SortType.조회순) {
             query.orderBy(board.view_cnt.desc());
-        } else if (sortType == SortType.좋아요순) {
-            query.orderBy(board.likecnt.desc());
         }
 
-
+        query.where(whereClause);
 
         List<Board> results = getQuerydsl().applyPagination(pageable, query).fetch();
-        long totalCount = query.fetchCount();
+        boolean hasNext = results.size() > pageable.getPageSize();
 
-        // entity->response dto
+        // 엔티티 -> Dto 매핑
         List<BoardResponse.PageResponse> dtoList = results.stream()
                 .map(BoardResponse.PageResponse::new)
                 .collect(Collectors.toList());
 
-        return new PageImpl<>(dtoList, pageable, totalCount);
+        return new SliceImpl<>(dtoList, pageable, hasNext);
     }
+
     //제목 + 내용에 필요한 동적 쿼리문
     private BooleanExpression ContentMessageTitleEq(String boardContent, String boardTitle){
         // 글 내용 x, 글 제목 o

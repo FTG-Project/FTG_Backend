@@ -16,14 +16,14 @@ public class LikeController {
     //좋아요 클릭
     @PostMapping("/{boardId}")
     @Transactional
-    public ResponseEntity<CommonResponse> updateLike(@PathVariable Long boardId){
+    public ResponseEntity<CommonResponse.GeneralResponse> updateLike(@PathVariable Long boardId){
         return ResponseEntity.ok().body(likeService.updateLike(boardId));
     }
 
     //좋아요 취소
     @DeleteMapping("/{boardId}")
     @Transactional
-    public ResponseEntity<CommonResponse> deleteLike(@PathVariable Long boardId){
+    public ResponseEntity<CommonResponse.GeneralResponse> deleteLike(@PathVariable Long boardId){
         return ResponseEntity.ok().body(likeService.deleteLike(boardId));
     }
 }

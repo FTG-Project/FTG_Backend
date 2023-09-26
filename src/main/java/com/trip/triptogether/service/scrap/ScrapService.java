@@ -27,7 +27,7 @@ public class ScrapService {
     private final SecurityUtil securityUtil;
 
     //스크랩 조회
-    public CommonResponse getScrapsByUserId() {
+    public CommonResponse.ListResponse getScrapsByUserId() {
         User user= securityUtil.getAuthUserOrThrow();
         List<Scrap> scrapList = scrapRepository.findAllByUser_Id(user.getId());
 
@@ -35,11 +35,11 @@ public class ScrapService {
                 .map(scrap -> new BoardResponse(scrap.getBoard()))
                 .collect(Collectors.toList());
 
-        return responseService.getListResponse(HttpStatus.OK.value(), boardResponseList);
+        return responseService.getListResponse(HttpStatus.OK.value(), boardResponseList,"스크랩을 성공적으로 조회했습니다.");
     }
 
     //스크랩 추가
-    public CommonResponse addScrapToBoard(Long boardID) {
+    public CommonResponse.GeneralResponse addScrapToBoard(Long boardID) {
         User user= securityUtil.getAuthUserOrThrow();
         User chkUser = usersRepository.findById(user.getId())
                 .orElseThrow(()->new NotFoundException("could not found user"));
@@ -57,7 +57,7 @@ public class ScrapService {
     }
 
     //스크랩 취소
-    public CommonResponse removeScrapFromBoard(Long boardId) {
+    public CommonResponse.GeneralResponse removeScrapFromBoard(Long boardId) {
 
         try {
             User user = securityUtil.getAuthUserOrThrow();

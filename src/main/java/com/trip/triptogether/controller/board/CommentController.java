@@ -18,19 +18,19 @@ public class CommentController {
 
     //댓글 등록
     @PostMapping("/{boardId}")
-    public CommonResponse createComment(@PathVariable Long boardId, @RequestBody CommentReqeust commentReqeust){
+    public CommonResponse.SingleResponse createComment(@PathVariable Long boardId, @RequestBody CommentReqeust commentReqeust){
         return commentService.createComment(boardId,commentReqeust);
     }
 
     //댓글 수정 (content만 수정하게 할꺼면 commentRequest 굳이!?)
     @PutMapping("/{commentId}")
-    public CommonResponse updateComment(@PathVariable Long commentId, @RequestBody CommentReqeust commentReqeust){
+    public CommonResponse.SingleResponse updateComment(@PathVariable Long commentId, @RequestBody CommentReqeust commentReqeust){
         return commentService.updateComment(commentId,commentReqeust);
     }
 
     //댓글 삭제
     @DeleteMapping("/{commentId}")
-    public CommonResponse deleteComment(@PathVariable Long commentId){
+    public CommonResponse.GeneralResponse deleteComment(@PathVariable Long commentId){
         return commentService.deleteComment(commentId);
     }
 }

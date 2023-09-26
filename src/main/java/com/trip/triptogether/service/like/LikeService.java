@@ -28,14 +28,14 @@ public class LikeService {
     private final ResponseService responseService;
 
     //좋아요 클릭
-    public CommonResponse updateLike(Long boardId){
+    public CommonResponse.GeneralResponse updateLike(Long boardId){
         User user=securityUtil.getAuthUserOrThrow();
         User chkUser=userRepository.findByNickname(user.getNickname())
-                .orElseThrow(()->new UsernameNotFoundException("could not found user"));
+                .orElseThrow(()->new UsernameNotFoundException("해당 유저를 찾을 수 없스빈다."));
         Board board=boardRepository.findById(boardId)
-                .orElseThrow(()->new NotFoundException("could not found board"));
+                .orElseThrow(()->new NotFoundException("해당 게시글을 찾을 수 없습니다."));
         if(likeRepository.findByUsersAndBoard(user,board).isPresent()){
-            throw new IllegalArgumentException("already exist data");
+            throw new IllegalArgumentException("이미 좋아요를 클릭했습니다.");
         }
         Likes likes= Likes.builder()
                 .board(board)
@@ -43,27 +43,27 @@ public class LikeService {
                 .build();
         likeRepository.save(likes);
         boardRepository.updateLikeCount(board);
-        return responseService.getGeneralResponse(HttpStatus.OK.value(), "update like count");
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "좋아요를 클릭했습니다.");
 
     }
     //좋아요 취소
 
-    public CommonResponse deleteLike(Long boardId) {
+    public CommonResponse.GeneralResponse deleteLike(Long boardId) {
 
         User users=securityUtil.getAuthUserOrThrow();
         User chkUser=userRepository.findByNickname(users.getNickname())
-                .orElseThrow(()->new UsernameNotFoundException("could not found user"));
+                .orElseThrow(()->new UsernameNotFoundException("해당 유저를 찾을 수 없습니다."));
 
         Board board=boardRepository.findById(boardId)
-                .orElseThrow(()->new NotFoundException("Could not found board"));
+                .orElseThrow(()->new NotFoundException("해당 게시글을 찾을 수 없습니다."));
 
         Likes likes = likeRepository.findByUsersAndBoard(users, board)
-                .orElseThrow(() -> new NotFoundException("Could not found heart id"));
+                .orElseThrow(() -> new NotFoundException("좋아요를 클릭하지 않았습니다."));
 
         likeRepository.delete(likes);
         boardRepository.subLikeCount(board);
 
-        return responseService.getGeneralResponse(HttpStatus.OK.value(), "sub like count");
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "좋아요를 취소했습니다.");
     }
 
 

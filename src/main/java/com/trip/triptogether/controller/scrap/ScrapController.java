@@ -14,17 +14,17 @@ public class ScrapController {
 
 
     @GetMapping("")
-    public ResponseEntity<CommonResponse>  getScrapsByUserId(){
+    public ResponseEntity<CommonResponse.ListResponse>  getScrapsByUserId(){
         return ResponseEntity.ok().body(scrapService.getScrapsByUserId());
     }
 
     @PostMapping("/{boardId}")
-    public ResponseEntity<CommonResponse> addScrapToBoard(@PathVariable Long boardId){
+    public ResponseEntity<CommonResponse.GeneralResponse> addScrapToBoard(@PathVariable Long boardId){
         return ResponseEntity.ok().body(scrapService.addScrapToBoard(boardId));
     }
 
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<CommonResponse> removeScrapFromBoard(@PathVariable Long boardId){
+    public ResponseEntity<CommonResponse.GeneralResponse> removeScrapFromBoard(@PathVariable Long boardId){
         return ResponseEntity.ok().body(scrapService.removeScrapFromBoard(boardId));
     }
 }
