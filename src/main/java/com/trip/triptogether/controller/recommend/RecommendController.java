@@ -38,7 +38,7 @@ public class RecommendController {
     private final S3Service s3Service;
 
     @GetMapping("/{area}")
-    @Operation(summary = "추천 목록을 가져오는 api?(수정해주세요!)", description = "추천 목록을 가져오는 api 입니다?.")
+    @Operation(summary = "지별, 카테고리 별 장소 목록을 가져오는 api", description = "지별, 카테고리 별 장소 목록을 가져오는 api 입니다?.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "retrieve recommend list successfully", content = @Content(schema = @Schema(implementation = CommonResponse.ListResponse.class)))})
     public ResponseEntity<CommonResponse.ListResponse<RecommendListResponse>> recommendList(
@@ -48,7 +48,7 @@ public class RecommendController {
     }
 
     @GetMapping("/place")
-    @Operation(summary = "추천 상세 목록을 가져오는 api?(수정해주세요!)", description = "추천 상세 목록을 가져오는 api 입니다?")
+    @Operation(summary = "장소 상세 페이지을 가져오는 api", description = "장소 상세 페이지을 가져오는 api 입니다?")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "retrieve recommend detail successfully", content = @Content(schema = @Schema(implementation = CommonResponse.SingleResponse.class)))})
     public ResponseEntity<CommonResponse.SingleResponse<RecommendResponse>> recommendDetailed(
@@ -67,7 +67,7 @@ public class RecommendController {
     }
 
     @GetMapping("/scrap")
-    @Operation(summary = "스크랩 생성 api", description = "스크랩 생성  api 입니다.")
+    @Operation(summary = "장소 스크랩 생성 api", description = "장소 스크랩 생성  api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "create scrap successfully", content = @Content(schema = @Schema(implementation = CommonResponse.SingleResponse.class)))})
     public ResponseEntity<CommonResponse.SingleResponse<ScrapResponse>> addScrap(@RequestParam Long id) {
