@@ -66,11 +66,19 @@ public class RecommendController {
         return ResponseEntity.ok().body(reviewService.createReview(reviewRequest, files, recommendId));
     }
 
-    @GetMapping("/scrap")
-    @Operation(summary = "장소 스크랩 생성 api", description = "장소 스크랩 생성  api 입니다.")
+    @PostMapping("/scrap/{recommendId}")
+    @Operation(summary = "장소 스크랩 추가 api", description = "장소 스크랩 추가 api 입니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "create scrap successfully", content = @Content(schema = @Schema(implementation = CommonResponse.SingleResponse.class)))})
-    public ResponseEntity<CommonResponse.SingleResponse<ScrapResponse>> addScrap(@RequestParam Long id) {
-        return ResponseEntity.ok().body(recommendScrapService.addScrap(id));
+            @ApiResponse(responseCode = "200", description = "create scrap successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
+    public ResponseEntity<CommonResponse> addScrapToRecommend(@PathVariable Long recommendId) {
+        return ResponseEntity.ok().body(recommendScrapService.addScrapToRecommend(recommendId));
+    }
+
+    @DeleteMapping("/scrap/{recommendId}")
+    @Operation(summary = "장소 스크랩 삭제 api", description = "장소 스크랩 삭제 api 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "remove scrap successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
+    public ResponseEntity<CommonResponse> deleteScrapToRecommend(@PathVariable Long recommendId) {
+        return ResponseEntity.ok().body(recommendScrapService.removeScrapFromRecommend(recommendId));
     }
 }
