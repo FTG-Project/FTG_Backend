@@ -37,7 +37,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         log.info("request URI : {}", requestURI);
         if (requestURI.contains("login") || requestURI.contains("oauth2") || requestURI.contains("favicon") || requestURI.contains("swagger-ui")
-            || requestURI.contains("v3") || requestURI.contains("api-docs")) {
+            || requestURI.contains("v3") || requestURI.contains("api-docs") || requestURI.contains("ws-stomp")) {
             filterChain.doFilter(request, response);
             return;
         }

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -139,5 +140,10 @@ public class JwtService {
         Long expiresAt = JWT.decode(accessToken).getExpiresAt().getTime();
         Long now = new Date().getTime();
         return (expiresAt - now);
+    }
+
+    //parse jwt from stomp header
+    public String extractTokenFromStompHeader(final StompHeaderAccessor accessor) {
+        return accessor.getFirstNativeHeader("Authorization");
     }
 }

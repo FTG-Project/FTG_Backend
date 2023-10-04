@@ -1,16 +1,23 @@
 package com.trip.triptogether.util;
 
+import com.trip.triptogether.dto.request.chat.MessageCache;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
 public class RedisUtil {
+    @Value("${spring.data.redis.expire}")
+    private int expireTime;
 
+    private final RedisTemplate<String, LinkedList<MessageCache>> redisMessageTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
     //로그아웃 유저 -> Access Token 블랙리스트 등록
     private final RedisTemplate<String, Object> redisBlackListTemplate;
@@ -50,5 +57,27 @@ public class RedisUtil {
 
     public boolean hasKeyBlackList(String key) {
         return Boolean.TRUE.equals(redisBlackListTemplate.hasKey(key));
+    }
+
+    //chat
+    public void putMessage(Long roomId, Queue<MessageCache> messageQueue) {
+        redisMessageTemplate.opsForValue().set(roomId.toString(), new LinkedList<>(messageQueue));
+    }
+
+    public void putDummyMessage(Long roomId) {
+        redisMessageTemplate.opsForValue().set("room" + roomId.toString(), new LinkedList<>());
+        redisMessageTemplate.expire("room" + roomId.toString(), expireTime, TimeUnit.MINUTES);
+    }
+
+    public boolean containKey(Long roomId) {
+        return Boolean.TRUE.equals(redisMessageTemplate.hasKey(roomId.toString()));
+    }
+
+    public LinkedList<MessageCache> getMessage(Long roomId) {
+        return redisMessageTemplate.opsForValue().get(roomId.toString());
+    }
+
+    public void deleteKey(Long roomId) {
+        redisMessageTemplate.delete(roomId.toString());
     }
 }
