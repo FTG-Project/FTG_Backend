@@ -44,7 +44,7 @@ public class HomeController {
     }
 
     @GetMapping("/{Area}")
-    @Operation(summary = "홈장소? 조회 api 입니다. (수정해주세요!)", description = "홈 장소 조회 api 입니다.")
+    @Operation(summary = "지역, 카테고리 별 인기 장소 조회 api", description = "지역, 카테고리 별 인기 장소 조회 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "retrieve home area successfully", content = @Content(schema = @Schema(implementation = CommonResponse.SingleResponse.class)))})
     public ResponseEntity<CommonResponse.ListResponse<RecommendBelovedResponse>> homeArea(
