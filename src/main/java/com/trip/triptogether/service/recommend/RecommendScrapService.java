@@ -70,5 +70,9 @@ public class RecommendScrapService {
         } catch (Exception e) {
             return responseService.getGeneralResponse(HttpStatus.BAD_REQUEST.value(),"잘못된 요청입니다.");
         }
+
+
+
+
     }
 }

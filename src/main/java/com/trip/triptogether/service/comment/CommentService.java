@@ -1,6 +1,8 @@
 package com.trip.triptogether.service.comment;
 
 import com.amazonaws.services.kms.model.NotFoundException;
+import com.trip.triptogether.common.CustomErrorCode;
+import com.trip.triptogether.common.CustomException;
 import com.trip.triptogether.domain.Board;
 import com.trip.triptogether.domain.Comment;
 import com.trip.triptogether.domain.User;
@@ -23,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import static com.trip.triptogether.common.CustomErrorCode.NO_USER_PERMISSION;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -36,14 +40,13 @@ public class CommentService {
 
     //댓글 등록
     @Transactional
-    public CommonResponse createComment(Long boardId, CommentReqeust commentReqeust){
+    public CommonResponse.SingleResponse createComment(Long boardId, CommentReqeust commentReqeust){
         User user=securityUtil.getAuthUserOrThrow();
         User chkUser = userRepository.findById(user.getId()).orElseThrow(
-                () -> new NoSuchElementException("user not found"));
+                () -> new NotFoundException("user not found"));
 
         Board board=boardRepository.findById(boardId).orElseThrow(()-> new NotFoundException("Could not found board id"));
 
-        //정확히 하는 역할? entity 변환 아닌가?
         Comment comment=commentRequestMapper.toEntity(commentReqeust);
         Comment parentComment;
         //부모 댓글이 없을 경우
@@ -59,32 +62,32 @@ public class CommentService {
 
         commentRepository.save(comment);
         user.getCommentList().add(comment);
-        return responseService.getSingleResponse(HttpStatus.OK.value(), new CommentResponse(comment.getId(),comment.getContent(),comment.getWriter()));
+        return responseService.getSingleResponse(HttpStatus.OK.value(), new CommentResponse(comment.getId(),comment.getContent(),comment.getWriter()),"댓글을 성공적으로 등록했습니다.");
     }
 
     //댓글 수정
     @Transactional
-    public CommonResponse updateComment(Long commentId, CommentReqeust commentReqeust) {
+    public CommonResponse.SingleResponse updateComment(Long commentId, CommentReqeust commentReqeust) {
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Could not found comment id : " + commentId));
         //작성자가 아닐 경우
         if(!checkCommentLoginUser(comment)) {
-            return responseService.getGeneralResponse(HttpStatus.BAD_REQUEST.value(), "do not have permission to edit comments.");
+           new CustomException(NO_USER_PERMISSION);
         }
         comment.updateContent(commentReqeust.getContent());
-        return responseService.getGeneralResponse(HttpStatus.OK.value(),"success update comment content");
+        return responseService.getSingleResponse(HttpStatus.OK.value(),comment,"댓글을 성공적으로 수정했습니다.");
     }
 
     //댓글 삭제
     @Transactional
-    public CommonResponse deleteComment(Long commentId) {
+    public CommonResponse.GeneralResponse deleteComment(Long commentId) {
 
         Comment comment = commentRepository.findCommentByIdWithParent(commentId)
                 .orElseThrow(() -> new NotFoundException("Could not found comment id : " + commentId));
         //작성자가 아닐 경우
         if(!checkCommentLoginUser(comment)) {
-            return responseService.getGeneralResponse(HttpStatus.BAD_REQUEST.value(), "do not have permission to edit comments.");
+            new CustomException(NO_USER_PERMISSION);
         }
         else {
             //자식이 있을 경우 -> 상태만 변경
@@ -95,7 +98,7 @@ public class CommentService {
             commentRepository.delete(getDeletableAncestorComment(comment));
         }
 
-        return responseService.getGeneralResponse(HttpStatus.OK.value(),"success delete comment");
+        return responseService.getGeneralResponse(HttpStatus.OK.value(),"댓글을 성공적으로 삭제했습니다.");
     }
 
     private Comment getDeletableAncestorComment(Comment comment) {

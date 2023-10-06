@@ -26,7 +26,7 @@ public class CommentController {
     @Operation(summary = "댓글 생성 api", description = "댓글 생성 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "create comment successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
-    public CommonResponse createComment(@PathVariable Long boardId, @RequestBody CommentReqeust commentReqeust){
+    public CommonResponse.SingleResponse createComment(@PathVariable Long boardId, @RequestBody CommentReqeust commentReqeust){
         return commentService.createComment(boardId,commentReqeust);
     }
 
@@ -35,7 +35,7 @@ public class CommentController {
     @Operation(summary = "댓글 수정 api", description = "댓글 수정 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "update comment successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
-    public CommonResponse updateComment(@PathVariable Long commentId, @RequestBody CommentReqeust commentReqeust){
+    public CommonResponse.SingleResponse updateComment(@PathVariable Long commentId, @RequestBody CommentReqeust commentReqeust){
         return commentService.updateComment(commentId,commentReqeust);
     }
 
@@ -44,7 +44,7 @@ public class CommentController {
     @Operation(summary = "댓글 t삭제 api", description = "댓글 삭제 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "delete comment successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
-    public CommonResponse deleteComment(@PathVariable Long commentId){
+    public CommonResponse.GeneralResponse deleteComment(@PathVariable Long commentId){
         return commentService.deleteComment(commentId);
     }
 }

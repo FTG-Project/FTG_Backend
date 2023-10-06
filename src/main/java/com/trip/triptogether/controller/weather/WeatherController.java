@@ -38,9 +38,9 @@ public class WeatherController {
             }
             return responseService.getSingleResponse(HttpStatus.OK.value(),
                     weatherService.getWeatherByPos(latitude.doubleValue(),
-                                                   longitude.doubleValue()));
+                                                   longitude.doubleValue()),"");
         } else { //area -> weather info
-            return responseService.getSingleResponse(HttpStatus.OK.value(), weatherService.getWeatherByArea(area));
+            return responseService.getSingleResponse(HttpStatus.OK.value(), weatherService.getWeatherByArea(area),"");
         }
     }
 }

@@ -31,7 +31,7 @@ public class RecommendService {
 
         List<RecommendBelovedResponse> recommend = recommendRepository.findTop5RecommendByAreaAndCategoryOrderByRating(area, category);
 
-        return responseService.getListResponse(HttpStatus.OK.value(), recommend);
+        return responseService.getListResponse(HttpStatus.OK.value(), recommend,"Top5 장소를 성공적으로 불러왔습니다.");
 
     }
 
@@ -48,7 +48,7 @@ public class RecommendService {
                 break;
         }
 
-        return responseService.getListResponse(HttpStatus.OK.value(), recommend);
+        return responseService.getListResponse(HttpStatus.OK.value(), recommend,"정렬기준에 따라 성공적으로 정렬하였습니다.");
     }
 
     public CommonResponse.ListResponse<RecommendRandomResponse> recommendRandom() {
@@ -57,7 +57,7 @@ public class RecommendService {
                 .map(r -> new RecommendRandomResponse(r))
                 .collect(toList());
 
-        return responseService.getListResponse(HttpStatus.OK.value(), response);
+        return responseService.getListResponse(HttpStatus.OK.value(), response,"");
 
     }
 
@@ -75,7 +75,7 @@ public class RecommendService {
             default:
                 break;
         }
-        return responseService.getListResponse(HttpStatus.OK.value(), recommendList);
+        return responseService.getListResponse(HttpStatus.OK.value(), recommendList,"");
     }
 
     public CommonResponse.SingleResponse<RecommendResponse> recommendDetail(Long id, String sort) {
@@ -96,6 +96,6 @@ public class RecommendService {
                 Collections.sort(reviewResponse, Comparator.comparing(ReviewResponse::getUpdatedDate).reversed());
                 break;
         }
-        return responseService.getSingleResponse(HttpStatus.OK.value(), new RecommendResponse(recommend, reviewResponse));
+        return responseService.getSingleResponse(HttpStatus.OK.value(), new RecommendResponse(recommend, reviewResponse),"");
     }
 }

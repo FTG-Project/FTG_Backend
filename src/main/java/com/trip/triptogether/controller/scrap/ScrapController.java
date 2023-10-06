@@ -20,10 +20,11 @@ public class ScrapController {
 
 
     @GetMapping("")
+
     @Operation(summary = "스크랩 조회 api", description = "userId로 스크랩 가져오는 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "retrieve scrap successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
-    public ResponseEntity<CommonResponse>  getScrapsByUserId(){
+    public ResponseEntity<CommonResponse.ListResponse>  getScrapsByUserId(){
         return ResponseEntity.ok().body(scrapService.getScrapsByUserId());
     }
 
@@ -31,7 +32,7 @@ public class ScrapController {
     @Operation(summary = "스크랩 추가 api", description = "스크랩을 추가하는 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "create scrap successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
-    public ResponseEntity<CommonResponse> addScrapToBoard(@PathVariable Long boardId){
+    public ResponseEntity<CommonResponse.GeneralResponse> addScrapToBoard(@PathVariable Long boardId){
         return ResponseEntity.ok().body(scrapService.addScrapToBoard(boardId));
     }
 
@@ -39,7 +40,7 @@ public class ScrapController {
     @Operation(summary = "스크랩 삭제 api", description = "스크랩 삭제 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "remove scrap successfully successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
-    public ResponseEntity<CommonResponse> removeScrapFromBoard(@PathVariable Long boardId){
+    public ResponseEntity<CommonResponse.GeneralResponse> removeScrapFromBoard(@PathVariable Long boardId){
         return ResponseEntity.ok().body(scrapService.removeScrapFromBoard(boardId));
     }
 }

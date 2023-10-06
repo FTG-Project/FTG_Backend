@@ -27,6 +27,8 @@ public class Board extends BaseTime{
     @Column
     private String contents; //내용
 
+    @Column
+    private String profileImage; //프로필 이미지
     @ColumnDefault("0")
     @Column
     private int view_cnt; //조회수
@@ -61,4 +63,23 @@ public class Board extends BaseTime{
         this.boardType=boardRequest.getType();
 
     }
+
+
+    public void addPhotoList(List<Photo> photo){
+        this.photoList=photo;
+    }
+
+    public void increaseView() {
+        this.view_cnt+=1;
+    }
+
+    public void updateView() {
+        this.view_cnt++;
+    }
+
+    public void updatePhotoList(List<Photo> existingPhotos) {
+        this.photoList=existingPhotos;
+    }
 }
+
+

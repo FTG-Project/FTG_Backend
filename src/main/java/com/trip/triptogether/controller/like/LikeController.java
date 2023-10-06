@@ -24,7 +24,7 @@ public class LikeController {
     @Operation(summary = "좋아요 api?(수정해주세요!)", description = "좋아요 api 입니다?")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "like successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
-    public ResponseEntity<CommonResponse> updateLike(@PathVariable Long boardId){
+    public ResponseEntity<CommonResponse.GeneralResponse> updateLike(@PathVariable Long boardId){
         return ResponseEntity.ok().body(likeService.updateLike(boardId));
     }
 
@@ -34,7 +34,7 @@ public class LikeController {
     @Operation(summary = "좋아요 취소 api?", description = "좋아요 취소 api 입니다.?")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "cancel like successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
-    public ResponseEntity<CommonResponse> deleteLike(@PathVariable Long boardId){
+    public ResponseEntity<CommonResponse.GeneralResponse> deleteLike(@PathVariable Long boardId){
         return ResponseEntity.ok().body(likeService.deleteLike(boardId));
     }
 }

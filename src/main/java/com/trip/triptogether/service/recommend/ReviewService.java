@@ -61,6 +61,6 @@ public class ReviewService {
                     .build();
             photoList.add(photo);
         }
-        return responseService.getSingleResponse(HttpStatus.OK.value(), new ReviewResponse(review));
+        return responseService.getSingleResponse(HttpStatus.OK.value(), new ReviewResponse(review),"");
     }
 }

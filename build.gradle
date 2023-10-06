@@ -65,6 +65,11 @@ dependencies {
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.415'
 
 
+	//Firebase
+	implementation 'com.google.firebase:firebase-admin:9.1.1'
+	implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3'
+
+
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 

@@ -17,27 +17,29 @@ public class BoardResponse {
     private String title; // 제목
     private String contents; // 내용
     private String writer; // 작성자
+    private String profileImage; // 프로필 사진
     private int viewCount; // 조회수
     private int likeCount; //좋아요 수
     private List<String> photoList; // 이미지 리스트
+
     private List<CommentResponse> commentList; // 댓글 리스트
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
-    private LocalDateTime createdDate; // 패턴 추후 변경
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+    private LocalDateTime createdDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime updatedDate;
+
 
     public BoardResponse(Board board) {
         this.writer = board.getWriter();
         this.title = board.getTitle();
         this.contents = board.getContents();
+        this.profileImage=board.getProfileImage();
         this.viewCount = board.getView_cnt();
         this.likeCount=board.getLikecnt();
         this.createdDate = board.getCreatedDate();
         this.updatedDate = board.getUpdatedDate();
-
-
 
         this.photoList = board.getPhotoList()
                 .stream()
@@ -73,18 +75,19 @@ public class BoardResponse {
         private String pageTitle; // 제목
         private String pageContent; // 내용 , 이건 화면에 따라 뺼 수도 있을 듯
         private String writer; // 작성자
-        private int viewCount;
-        private int likeCount; //좋아요 수
-        private int commentCount;
-        // 생성 시간도 추가?
+        private int viewCount; //조회 수
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+        private LocalDateTime createdDate; // 패턴 추후 변경
+
+
 
         public PageResponse(Board board) {
             this.pageTitle = board.getTitle();
             this.pageContent = board.getContents();
             this.writer = board.getWriter();
             this.viewCount = board.getView_cnt();
-            this.likeCount=board.getLikecnt();
-            this.commentCount = board.getCommentList().size();
+            this.createdDate = board.getCreatedDate();
         }
     }
 }
