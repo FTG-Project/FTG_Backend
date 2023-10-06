@@ -35,4 +35,3 @@ public class Photo{
     private Long fileSize;
 
 }
-

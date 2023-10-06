@@ -4,6 +4,11 @@ import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.dto.response.ResponseService;
 import com.trip.triptogether.dto.response.weather.WeatherResponse;
 import com.trip.triptogether.service.weather.WeatherService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +24,9 @@ public class WeatherController {
     private final ResponseService responseService;
 
     @GetMapping
+    @Operation(summary = "날씨정보 조회 api", description = "날씨 조회 api 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "retrieve weather info successfully", content = @Content(schema = @Schema(implementation = CommonResponse.SingleResponse.class)))})
     public CommonResponse.SingleResponse<WeatherResponse> getWeather(@RequestParam(required = false) String area,
                                                                      @RequestParam(required = false) Double latitude,
                                                                      @RequestParam(required = false) Double longitude) {
@@ -30,9 +38,9 @@ public class WeatherController {
             }
             return responseService.getSingleResponse(HttpStatus.OK.value(),
                     weatherService.getWeatherByPos(latitude.doubleValue(),
-                                                   longitude.doubleValue()));
+                                                   longitude.doubleValue()),"");
         } else { //area -> weather info
-            return responseService.getSingleResponse(HttpStatus.OK.value(), weatherService.getWeatherByArea(area));
+            return responseService.getSingleResponse(HttpStatus.OK.value(), weatherService.getWeatherByArea(area),"");
         }
     }
 }

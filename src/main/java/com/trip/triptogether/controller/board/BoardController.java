@@ -7,6 +7,11 @@ import com.trip.triptogether.dto.request.board.BoardRequest;
 import com.trip.triptogether.dto.response.board.BoardResponse;
 import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.service.board.BoardService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,11 +37,14 @@ public class BoardController {
 
     //게시판 조회
     @GetMapping("")
-    public ResponseEntity<Slice<BoardResponse.PageResponse>> getBoardList(@RequestParam(required = false) SortType sortType,
-                                                                          @RequestParam(required = false) BoardType boardType,
-                                                                          @RequestBody SearchType searchCondition,
-                                                                          Pageable pageable){
-        Slice<BoardResponse.PageResponse> responseDTO;
+    @Operation(summary = "게시글 조회 api", description = "게시글 조회 api 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "retrieve board list successfully", content = @Content(schema = @Schema(implementation = BoardResponse.class)))})
+        public ResponseEntity<Slice<BoardResponse.PageResponse>> getBoardList(@RequestParam(required = false) SortType sortType,
+                @RequestParam(required = false) BoardType boardType,
+                @RequestBody SearchType searchCondition,
+                Pageable pageable){
+            Slice<BoardResponse.PageResponse> responseDTO;
         //검색조건 중 모든 내용을 입력하지 않고 요청을 보냈을 때 일반 목록 페이지 출력
         if (searchCondition.getContent().isEmpty() && searchCondition.getWriter().isEmpty() && searchCondition.getTitle().isEmpty()) {
             responseDTO = boardService.getBoardList(pageable);
@@ -50,11 +58,19 @@ public class BoardController {
 
     //게시글 등록
     @PostMapping(value = "",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CommonResponse.SingleResponse> createBoard(@RequestPart(value = "boardRequest") BoardRequest boardRequest , @RequestPart(required = false) List<MultipartFile> files ){
+    @Operation(summary = "게시글 생성 api", description = "게시글 생성 api 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "create board successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
+    public  ResponseEntity<CommonResponse.SingleResponse> createBoard(@RequestPart(value = "boardRequest") BoardRequest boardRequest , @RequestPart(required = false) List<MultipartFile> files ){
+
         return ResponseEntity.ok().body(boardService.createBoard(boardRequest,files));
     }
     //게시글 수정
     @PutMapping(value = "/{boardId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+
+    @Operation(summary = "게시글 수정 api", description = "게시글 수정 api 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "update board successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
     public ResponseEntity<CommonResponse.SingleResponse> updateBoard(@PathVariable Long boardId,@RequestPart(value = "boardRequest") BoardRequest boardRequest , @RequestPart(required = false) List<MultipartFile> files ){
 
         return ResponseEntity.ok().body(boardService.updateBoard(boardId,boardRequest,files));
@@ -62,6 +78,10 @@ public class BoardController {
 
     //게시글 삭제
     @DeleteMapping("/{boardId}")
+
+    @Operation(summary = "게시글 삭제 api", description = "게시글 삭제 api 입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "delete board successfully", content = @Content(schema = @Schema(implementation = CommonResponse.class)))})
     public ResponseEntity<CommonResponse.SingleResponse> deleteBoard(@PathVariable Long boardId){
         return ResponseEntity.ok().body(boardService.deleteBoard(boardId));
     }

@@ -64,6 +64,7 @@ public class Board extends BaseTime{
 
     }
 
+
     public void addPhotoList(List<Photo> photo){
         this.photoList=photo;
     }
@@ -80,3 +81,5 @@ public class Board extends BaseTime{
         this.photoList=existingPhotos;
     }
 }
+
+

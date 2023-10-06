@@ -11,16 +11,6 @@ public class RecommendBestResponse {
     private String title;
     private String city;
     private String image;
+    private Long scraps;
     private Double rating;
-    private Double likes;
-
-    public RecommendBestResponse(Recommend recommend) {
-        id = recommend.getId();
-        title = recommend.getTitle();
-        city = recommend.getAddress().getCity();
-        image = recommend.getThumbnail();
-        rating = recommend.getRating();
-        likes = recommend.getLikes();
-    }
-
 }
