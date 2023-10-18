@@ -1,3 +1,4 @@
+/*
 package com.trip.triptogether.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -39,3 +40,4 @@ public class FCMConfig {
 
     }
 }
+*/
