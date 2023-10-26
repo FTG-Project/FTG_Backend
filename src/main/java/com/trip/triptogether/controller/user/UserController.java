@@ -15,11 +15,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.view.RedirectView;
-
 import java.util.NoSuchElementException;
 
 @RestController
@@ -31,23 +28,16 @@ public class UserController {
     private final JwtService jwtService;
     private final ResponseService responseService;
 
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String clientId;
-
-    @Value("${client-url}")
-    private String clientURL;
-
-    @GetMapping("/login")
-    public RedirectView login() {
-        RedirectView redirectView = new RedirectView();
-        redirectView.setUrl("https://accounts.google.com/o/oauth2/v2/auth?client_id="
-                + clientId + "&redirect_uri=" + clientURL
-                + "/login/redirect&response_type=code&scope=email");
-        return redirectView;
+    @PostMapping("/login")
+    @Operation(summary = "로그인 api", description = "로그인 api 입니다")
+    public CommonResponse.GeneralResponse login(HttpServletResponse response,
+                                                @RequestParam("access_token") String accessToken) {
+        userService.login(response, accessToken);
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "login success");
     }
 
     @PostMapping("/sign-up")
-    @Operation(summary = "로그인 api", description = "로그인 api 입니다.")
+    @Operation(summary = "회원가입 api", description = "회원가입 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success login", content = @Content(schema = @Schema(implementation = CommonResponse.GeneralResponse.class)))})
     public CommonResponse.GeneralResponse signUp(@Valid @RequestBody UserSaveRequest userSaveDto,

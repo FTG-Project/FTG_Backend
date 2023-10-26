@@ -36,7 +36,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
         log.info("request URI : {}", requestURI);
-        if (requestURI.contains("login") || requestURI.contains("oauth2") || requestURI.contains("favicon") || requestURI.contains("swagger-ui")
+        if (requestURI.contains("login") || requestURI.contains("favicon") || requestURI.contains("swagger-ui")
             || requestURI.contains("v3") || requestURI.contains("api-docs")) {
             filterChain.doFilter(request, response);
             return;
