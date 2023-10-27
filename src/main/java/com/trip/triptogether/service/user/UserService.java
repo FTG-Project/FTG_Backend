@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -71,13 +70,13 @@ public class UserService {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + googleAccessToken);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
-        ResponseEntity<String> httpResponse = restTemplate.exchange(googleRequestUrl,
+        ResponseEntity<String> response = restTemplate.exchange(googleRequestUrl,
                 HttpMethod.GET, request, String.class);
-        log.info("body : {}", httpResponse.getBody());
+        log.info("body : {}", response.getBody());
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            GoogleUserResponse googleUserResponse = objectMapper.readValue(httpResponse.getBody(), GoogleUserResponse.class);
+            GoogleUserResponse googleUserResponse = objectMapper.readValue(response.getBody(), GoogleUserResponse.class);
             return googleUserResponse;
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException();
