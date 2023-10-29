@@ -44,15 +44,8 @@ public class UserService {
 
     @Transactional
     public void login(HttpServletResponse response, String googleAccessToken) {
-        GoogleUserResponse googleUserResponse = getGoogleUserResponse(
-                googleAccessToken);
-
-        String accessToken = jwtService.createAccessToken(googleUserResponse.getEmail());
-        String refreshToken = jwtService.createRefreshToken();
-        response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
-        response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
-
-        log.info("Access Token : {}", accessToken);
+        GoogleUserResponse googleUserResponse = getGoogleUserResponse(googleAccessToken);
+        setJwtHeader(response, googleUserResponse);
 
         Optional<User> findUser = userRepository.findByEmail(googleUserResponse.getEmail());
 
@@ -64,6 +57,14 @@ public class UserService {
                     .build();
             userRepository.save(user);
         }
+    }
+
+    private void setJwtHeader(HttpServletResponse response, GoogleUserResponse googleUserResponse) {
+        String accessToken = jwtService.createAccessToken(googleUserResponse.getEmail());
+        String refreshToken = jwtService.createRefreshToken();
+        response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
+        response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
+        log.info("accessToken : {}", accessToken);
     }
 
     private GoogleUserResponse getGoogleUserResponse(String googleAccessToken) {
