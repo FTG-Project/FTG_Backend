@@ -1,4 +1,4 @@
-package com.trip.triptogether.controller;
+/*package com.trip.triptogether.controller;
 
 import com.trip.triptogether.dto.request.FcmRequestDto;
 import com.trip.triptogether.service.fcn.FCMService;
@@ -26,4 +26,4 @@ public class FcmController {
                 fcmRequestDto.getBody());
         return ResponseEntity.ok().build();
     }
-}
+}*/

@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.NoSuchElementException;
 
 @RestController
@@ -29,8 +28,16 @@ public class UserController {
     private final JwtService jwtService;
     private final ResponseService responseService;
 
+    @PostMapping("/login")
+    @Operation(summary = "로그인 api", description = "로그인 api 입니다")
+    public CommonResponse.GeneralResponse login(HttpServletResponse response,
+                                                @RequestParam("access_token") String accessToken) {
+        userService.login(response, accessToken);
+        return responseService.getGeneralResponse(HttpStatus.OK.value(), "login success");
+    }
+
     @PostMapping("/sign-up")
-    @Operation(summary = "로그인 api", description = "로그인 api 입니다.")
+    @Operation(summary = "회원가입 api", description = "회원가입 api 입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success login", content = @Content(schema = @Schema(implementation = CommonResponse.GeneralResponse.class)))})
     public CommonResponse.GeneralResponse signUp(@Valid @RequestBody UserSaveRequest userSaveDto,
