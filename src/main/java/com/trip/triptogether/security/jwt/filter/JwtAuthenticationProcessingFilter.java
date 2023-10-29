@@ -1,5 +1,7 @@
 package com.trip.triptogether.security.jwt.filter;
 
+import com.trip.triptogether.common.CustomErrorCode;
+import com.trip.triptogether.common.CustomException;
 import com.trip.triptogether.domain.User;
 import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
@@ -66,13 +68,13 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         // refresh token 이 유효하면 재발급, 아니면 로그아웃
         if (jwtService.isTokenValid(refreshToken)) {
             User user = userRepository.findByRefreshToken(refreshToken).orElseThrow(
-                    () -> new NoSuchElementException("user not found"));
+                    () -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
             String reIssuedRefreshToken = reIssueRefreshToken(user);
             jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
                     reIssuedRefreshToken);
         } else {
             User user = userRepository.findByRefreshToken(refreshToken).orElseThrow(
-                    () -> new NoSuchElementException("user not found")); // invalid refresh Token
+                    () -> new CustomException(CustomErrorCode.USER_NOT_FOUND)); // invalid refresh Token
 
             user.logout(); // refresh Token 기간 만료 -> 로그아웃
         }
@@ -90,20 +92,20 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
         log.info("checkAccessTokenAndAuthentication");
 
         String accessToken = jwtService.extractAccessToken(request).orElseThrow(
-                () -> new NoSuchElementException("Access Token is not exist"));
+                () -> new CustomException(CustomErrorCode.ACCESS_TOKEN_NOT_FOUND));
 
         if (redisUtil.hasKeyBlackList(accessToken)) {
-            throw new RuntimeException("로그아웃 상태의 user인데 access Token으로 접근한 case");
+            throw new CustomException(CustomErrorCode.ALREADY_LOGOUT);
         }
 
         if (jwtService.isTokenValid(accessToken)) {
             String extractEmail = jwtService.extractEmail(accessToken).orElseThrow(
-                    () -> new NoSuchElementException("email is not exist"));
+                    () -> new CustomException(CustomErrorCode.EMAIL_NOT_FOUND));
             User user = userRepository.findByEmail(extractEmail).orElseThrow(
-                    () -> new NoSuchElementException("user is not exist"));
+                    () -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
             saveAuthentication(user);
         } else {
-            throw new IllegalStateException("Access Token is not valid");
+            throw new CustomException(CustomErrorCode.ACCESS_TOKEN_NOT_FOUND);
         }
 
         filterChain.doFilter(request, response);

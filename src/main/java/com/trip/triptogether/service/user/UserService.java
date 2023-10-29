@@ -2,6 +2,8 @@ package com.trip.triptogether.service.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.trip.triptogether.common.CustomErrorCode;
+import com.trip.triptogether.common.CustomException;
 import com.trip.triptogether.constant.Role;
 import com.trip.triptogether.domain.User;
 import com.trip.triptogether.dto.request.user.UserSaveRequest;
@@ -89,10 +91,10 @@ public class UserService {
         User user = securityUtil.getAuthUserOrThrow();
 
         Role role = securityUtil.getAuthority().orElseThrow(
-                () -> new IllegalStateException("You do not have any authorities."));
+                () -> new CustomException(CustomErrorCode.INVALID_ACCESS_TOKEN));
 
         if (role.equals(Role.USER)) {
-            throw new IllegalArgumentException("already registered user");
+            throw new CustomException(CustomErrorCode.ALREADY_REGISTERED_USER);
         }
 
         //setting refreshToken
