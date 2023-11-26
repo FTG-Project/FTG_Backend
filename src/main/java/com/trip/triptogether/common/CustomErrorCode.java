@@ -17,8 +17,8 @@ public enum CustomErrorCode {
     NO_USER_PERMISSION(HttpStatus.FORBIDDEN,"해당 글에 접근할 수 있는 권한이 없습니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 엑세스 토큰입니다."),
     ALREADY_REGISTERED_USER(HttpStatus.BAD_REQUEST, "이미 등록된 유저입니다."),
-    ALREADY_LOGOUT(HttpStatus.BAD_REQUEST, "이미 로그아웃한 유저입니다");
-
+    ALREADY_LOGOUT(HttpStatus.BAD_REQUEST, "이미 로그아웃한 유저입니다"),
+    FAIL_JSON_PARSING(HttpStatus.INTERNAL_SERVER_ERROR, "json 파싱에 실패했습니다.");
 
 
     private final HttpStatus httpStatus;

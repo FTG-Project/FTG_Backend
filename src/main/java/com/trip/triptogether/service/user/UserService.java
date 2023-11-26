@@ -31,65 +31,74 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Transactional(readOnly = true)
 public class UserService {
+    private static final String BEARER = "Bearer ";
+    private static final String ACCESS_HEADER = "Authorization";
+
+    @Value("${profile.default}")
+    private String defaultProfileImage;
+    @Value("${google.infoUrl}")
+    private String googleRequestUrl;
+
     private final JwtService jwtService;
     private final RedisUtil redisUtil;
     private final SecurityUtil securityUtil;
     private final RestTemplate restTemplate;
     private final UserRepository userRepository;
 
-    @Value("${profile.default}")
-    private String defaultProfileImage;
-
-    @Value("${google.infoUrl}")
-    private String googleRequestUrl;
-
-
     @Transactional
     public void login(HttpServletResponse response, String googleAccessToken) {
         GoogleUserResponse googleUserResponse = getGoogleUserResponse(googleAccessToken);
         setJwtHeader(response, googleUserResponse);
-
-        Optional<User> findUser = userRepository.findByEmail(googleUserResponse.getEmail());
-
-        if (findUser.isEmpty()) {
+        userRepository.findByEmail(googleUserResponse.getEmail()).orElseGet(() -> {
             User user = User.builder()
                     .socialId(googleUserResponse.getId())
                     .nickname(googleUserResponse.getName())
                     .role(Role.GUEST)
                     .build();
-            userRepository.save(user);
+            return userRepository.save(user);
+        });
+    }
+
+    private GoogleUserResponse getGoogleUserResponse(String googleAccessToken) {
+        HttpEntity<MultiValueMap<String, String>> request = makeRequest(googleAccessToken);
+        ResponseEntity<String> response = getResponse(request);
+        log.info("body : {}", response.getBody());
+        return parseGoogleResponse(response);
+    }
+
+    private HttpEntity<MultiValueMap<String, String>> makeRequest(String googleAccessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(ACCESS_HEADER, BEARER + googleAccessToken);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
+        return request;
+    }
+
+    private ResponseEntity<String> getResponse(HttpEntity<MultiValueMap<String, String>> request) {
+        ResponseEntity<String> response = restTemplate.exchange(googleRequestUrl,
+                HttpMethod.GET, request, String.class);
+        return response;
+    }
+
+    private GoogleUserResponse parseGoogleResponse(ResponseEntity<String> response) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(response.getBody(), GoogleUserResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new CustomException(CustomErrorCode.FAIL_JSON_PARSING);
         }
     }
 
     private void setJwtHeader(HttpServletResponse response, GoogleUserResponse googleUserResponse) {
         String accessToken = jwtService.createAccessToken(googleUserResponse.getEmail());
         String refreshToken = jwtService.createRefreshToken();
-        response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
-        response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
+        response.addHeader(jwtService.getAccessHeader(), accessToken);
+        response.addHeader(jwtService.getRefreshHeader(), BEARER + refreshToken);
         log.info("accessToken : {}", accessToken);
-    }
-
-    private GoogleUserResponse getGoogleUserResponse(String googleAccessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + googleAccessToken);
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(googleRequestUrl,
-                HttpMethod.GET, request, String.class);
-        log.info("body : {}", response.getBody());
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            GoogleUserResponse googleUserResponse = objectMapper.readValue(response.getBody(), GoogleUserResponse.class);
-            return googleUserResponse;
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException();
-        }
     }
 
     @Transactional
     public void signUp(UserSaveRequest userSaveDto, HttpServletResponse response) {
         User user = securityUtil.getAuthUserOrThrow();
-
         Role role = securityUtil.getAuthority().orElseThrow(
                 () -> new CustomException(CustomErrorCode.INVALID_ACCESS_TOKEN));
 
@@ -97,31 +106,21 @@ public class UserService {
             throw new CustomException(CustomErrorCode.ALREADY_REGISTERED_USER);
         }
 
-        //setting refreshToken
         String refreshToken = jwtService.createRefreshToken();
         jwtService.setRefreshTokenHeader(response, refreshToken);
-
-        //TODO : S3 연결하면 defaultImageUrl 넣기
         user.updateProfileImage(defaultProfileImage);
-
         user.signUp(userSaveDto.getNickname(), userSaveDto.getLanguage());
-
-        //signup success -> refreshToken 저장
         user.updateRefreshToken(refreshToken);
     }
 
     @Transactional
     public void logout(String accessToken) {
-        //TODO : error code 만들면 에러 변경
         User user =  securityUtil.getAuthUserOrThrow();
-
         Long expiration = jwtService.getExpiration(accessToken);
         if (expiration > 0) {
-            //access Token 남은 시간만큼 redis 에 저장 -> 해당 accessToken deny
             redisUtil.setBlackList(accessToken, "accessToken", expiration);
         }
 
-        //logout -> remove refreshToken
         user.logout();
     }
 }
