@@ -12,8 +12,9 @@ import com.trip.triptogether.repository.user.UserRepository;
 import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.util.RedisUtil;
 import com.trip.triptogether.util.SecurityUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,8 @@ import org.springframework.web.client.RestTemplate;
 public class UserService {
     private static final String BEARER = "Bearer ";
     private static final String ACCESS_HEADER = "Authorization";
+    private static final String ACCESS_TOKEN_SUBJECT = "accessToken";
+
 
     @Value("${profile.default}")
     private String defaultProfileImage;
@@ -114,13 +117,18 @@ public class UserService {
     }
 
     @Transactional
-    public void logout(String accessToken) {
+    public void logout(HttpServletRequest request) {
         User user =  securityUtil.getAuthUserOrThrow();
+        String accessToken = jwtService.extractAccessToken(request).orElseThrow(
+                () -> new CustomException(CustomErrorCode.ACCESS_TOKEN_NOT_FOUND));
+        expireAccessToken(accessToken);
+        user.logout();
+    }
+
+    private void expireAccessToken(String accessToken) {
         Long expiration = jwtService.getExpiration(accessToken);
         if (expiration > 0) {
-            redisUtil.setBlackList(accessToken, "accessToken", expiration);
+            redisUtil.setBlackList(accessToken, ACCESS_TOKEN_SUBJECT, expiration);
         }
-
-        user.logout();
     }
 }

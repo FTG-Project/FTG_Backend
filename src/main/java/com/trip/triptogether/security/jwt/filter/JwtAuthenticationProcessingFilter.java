@@ -27,7 +27,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
-    private final static List<String> permittedUrl = List.of("login", "favicon", "swagger-ui", "v3", "api-docs");
+    private final static List<String> PERMITTED_URL = List.of("login", "favicon", "swagger-ui", "v3", "api-docs");
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final RedisUtil redisUtil;
@@ -118,6 +118,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     }
 
     private boolean isPermitUrl(String requestURI) {
-        return permittedUrl.stream().anyMatch(requestURI::contains);
+        return PERMITTED_URL.stream().anyMatch(requestURI::contains);
     }
 }

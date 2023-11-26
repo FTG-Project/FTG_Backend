@@ -24,11 +24,10 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private static final String[] PERMITTED_URL = {"/users/**, /oauth2/**", "/login/**", "/**"};
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final RedisUtil redisUtil;
-
-    private static final String[] PERMIT_URL = {"/users/**, /oauth2/**", "/login/**", "/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,7 +41,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers(PERMIT_URL).permitAll()
+                                .requestMatchers(PERMITTED_URL).permitAll()
                                 .anyRequest().authenticated()
                 .and()
 
