@@ -11,6 +11,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,12 +23,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
-
+    private final static List<String> permittedUrl = List.of("login", "favicon", "swagger-ui", "v3", "api-docs");
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final RedisUtil redisUtil;
@@ -38,8 +38,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
         log.info("request URI : {}", requestURI);
-        if (requestURI.contains("login") || requestURI.contains("favicon") || requestURI.contains("swagger-ui")
-            || requestURI.contains("v3") || requestURI.contains("api-docs")) {
+        if (isPermitUrl(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -64,20 +63,10 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     }
 
     public void checkRefreshTokenAndReIssueAccessToken(HttpServletResponse response, String refreshToken) {
-
-        // refresh token 이 유효하면 재발급, 아니면 로그아웃
-        if (jwtService.isTokenValid(refreshToken)) {
-            User user = userRepository.findByRefreshToken(refreshToken).orElseThrow(
-                    () -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-            String reIssuedRefreshToken = reIssueRefreshToken(user);
-            jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
-                    reIssuedRefreshToken);
-        } else {
-            User user = userRepository.findByRefreshToken(refreshToken).orElseThrow(
-                    () -> new CustomException(CustomErrorCode.USER_NOT_FOUND)); // invalid refresh Token
-
-            user.logout(); // refresh Token 기간 만료 -> 로그아웃
-        }
+        User user = userRepository.findByRefreshToken(refreshToken).orElseThrow(
+                () -> new CustomException(CustomErrorCode.INVALID_LOGIN_ACCESS));
+        jwtService.sendAccessAndRefreshToken(response, jwtService.createAccessToken(user.getEmail()),
+                reIssueRefreshToken(user));
     }
 
     public String reIssueRefreshToken(User user) {
@@ -90,42 +79,45 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
         log.info("checkAccessTokenAndAuthentication");
-
         String accessToken = jwtService.extractAccessToken(request).orElseThrow(
                 () -> new CustomException(CustomErrorCode.ACCESS_TOKEN_NOT_FOUND));
-
         if (redisUtil.hasKeyBlackList(accessToken)) {
             throw new CustomException(CustomErrorCode.ALREADY_LOGOUT);
         }
 
         if (jwtService.isTokenValid(accessToken)) {
-            String extractEmail = jwtService.extractEmail(accessToken).orElseThrow(
-                    () -> new CustomException(CustomErrorCode.EMAIL_NOT_FOUND));
-            User user = userRepository.findByEmail(extractEmail).orElseThrow(
-                    () -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-            saveAuthentication(user);
+            saveAuthentication(getUserByAccessToken(accessToken));
         } else {
-            throw new CustomException(CustomErrorCode.ACCESS_TOKEN_NOT_FOUND);
+            throw new CustomException(CustomErrorCode.INVALID_ACCESS_TOKEN);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    public void saveAuthentication(User myUser) {
+    private User getUserByAccessToken(String accessToken) {
+        String extractEmail = jwtService.extractEmail(accessToken).orElseThrow(
+                () -> new CustomException(CustomErrorCode.EMAIL_NOT_FOUND));
+        return userRepository.findByEmail(extractEmail).orElseThrow(
+                () -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+    }
+
+    public void saveAuthentication(User user) {
         String password = PasswordUtil.generateRandomPassword();
-
-        UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
-                .username(myUser.getEmail())
-                .password(password)
-                .roles(myUser.getRole().name())
-                .build();
-
-
+        UserDetails userDetails = getUserDetails(user, password);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                 authoritiesMapper.mapAuthorities(userDetails.getAuthorities()));
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    private UserDetails getUserDetails(User user, String password) {
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getEmail())
+                .password(password)
+                .roles(user.getRole().name())
+                .build();
+    }
 
+    private boolean isPermitUrl(String requestURI) {
+        return permittedUrl.stream().anyMatch(requestURI::contains);
+    }
 }

@@ -2,6 +2,8 @@ package com.trip.triptogether.security.jwt.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.trip.triptogether.common.CustomErrorCode;
+import com.trip.triptogether.common.CustomException;
 import com.trip.triptogether.repository.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -121,7 +123,7 @@ public class JwtService {
         userRepository.findByEmail(email)
                 .ifPresentOrElse(
                         user -> user.updateRefreshToken(refreshToken),
-                        () -> new Exception("There are no matching users"));
+                        () -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
     }
 
     public boolean isTokenValid(String token) {
