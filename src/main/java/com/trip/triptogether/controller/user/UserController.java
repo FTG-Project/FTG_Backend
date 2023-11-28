@@ -3,7 +3,6 @@ package com.trip.triptogether.controller.user;
 import com.trip.triptogether.dto.request.user.UserSaveRequest;
 import com.trip.triptogether.dto.response.CommonResponse;
 import com.trip.triptogether.dto.response.ResponseService;
-import com.trip.triptogether.security.jwt.service.JwtService;
 import com.trip.triptogether.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +23,6 @@ import java.util.NoSuchElementException;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
-    private final JwtService jwtService;
     private final ResponseService responseService;
 
     @PostMapping("/login")
@@ -51,9 +48,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success login", content = @Content(schema = @Schema(implementation = CommonResponse.GeneralResponse.class)))})
     public CommonResponse.GeneralResponse logout(HttpServletRequest request) {
-        String accessToken = jwtService.extractAccessToken(request).orElseThrow(
-                () -> new NoSuchElementException("access Token is not exist"));
-        userService.logout(accessToken);
+        userService.logout(request);
         return responseService.getGeneralResponse(HttpStatus.OK.value(), "logout success");
     }
 }
